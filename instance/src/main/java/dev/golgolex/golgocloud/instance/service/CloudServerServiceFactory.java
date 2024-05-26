@@ -4,6 +4,7 @@ import dev.golgolex.golgocloud.common.FileHelper;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
+import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.quala.Quala;
@@ -14,9 +15,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.logging.Level;
 
 @Getter
@@ -45,7 +48,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             this.cloudGroup = cloudGroup;
 
             if (cloudGroup.staticService()) {
-                this.dir = new File(CloudInstance.instance().serviceProvider().staticServiceDir().toFile(), "/" + cloudService.id() + "#" + cloudService.uuid().toString());
+                this.dir = new File(CloudInstance.instance().serviceProvider().staticServiceDir().toFile(), "/" + cloudService.id());
             } else {
                 this.dir = new File(CloudInstance.instance().serviceProvider().runningDynamicServiceDir().toFile(), "/" + cloudService.id() + "#" + cloudService.uuid().toString());
             }
@@ -113,6 +116,9 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             }
         }
 
+        this.fileConfigration();
+        this.serverPropertiesConfiguration();
+
         var commandBuilder = new StringBuilder();
 
         if (CloudInstance.instance().osLinux()) {
@@ -124,16 +130,11 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         } else {
             commandBuilder
                     .append("java -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:MaxMetaspaceSize=256M -XX:-UseAdaptiveSizePolicy -XX:CICompilerCount=2 -Dcom.mojang.eula.agree=true -Dio.netty.recycler.maxCapacity=0 -Dio.netty.recycler.maxCapacity.default=0 -Djline.terminal=jline.UnsupportedTerminal -Xmx")
-                    .append(cloudService.memory())
-                    .append("M -jar ")
-                    .append("paper-")
-                    .append(cloudGroup.version())
-                    .append(".jar");
+                    .append(cloudService.memory()).append("M -jar ").append("paper-").append(cloudGroup.version()).append(".jar");
         }
 
-        var command = commandBuilder.toString();
         try {
-            this.process = Runtime.getRuntime().exec(command.split(" "), null, dir);
+            this.process = Runtime.getRuntime().exec(commandBuilder.toString().split(" "), null, dir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -141,9 +142,62 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
     }
 
+    /**
+     * Configures the file system for the server.
+     * This method checks if certain files exist in the specified directory, and if they don't, it inserts them.
+     * The files that are checked and inserted are 'bukkit.yml' and 'server-icon.png'.
+     * This method is called to set up the initial file configuration for the server.
+     */
+    public void fileConfigration() {
+        if (!Files.exists(Paths.get(dir + "/bukkit.yml"))) {
+            FileHelper.insertData("server-files/spigot/bukkit.yml", dir + "/bukkit.yml");
+        }
+
+        if (!Files.exists(Paths.get(dir + "/server-icon.png"))) {
+            FileHelper.insertData("server-files/server-icon.png", dir + "/server-icon.png");
+        }
+    }
+
+    /**
+     * Configures the server.properties file for the server.
+     * This method checks if the server.properties file exists in the specified directory,
+     * and if it doesn't, it inserts it from a template file.
+     * The method then updates certain properties in the server.properties file,
+     * such as the server IP, server port, and online mode.
+     * Finally, it saves the updated server.properties file.
+     * This method is called to configure the server properties.
+     */
+    public void serverPropertiesConfiguration() {
+        var serverPropertiesDir = Paths.get(dir + "/server.properties");
+        if (!Files.exists(serverPropertiesDir)) {
+            FileHelper.insertData("server-files/spigot/server.properties", serverPropertiesDir.toString());
+        }
+
+        var properties = new Properties();
+        try (var inputStreamReader = new InputStreamReader(Files.newInputStream(serverPropertiesDir))) {
+            properties.load(inputStreamReader);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        properties.setProperty("server-ip", Quala.hostName());
+        properties.setProperty("server-port", String.valueOf(this.cloudService.port()));
+        properties.setProperty("online-mode", String.valueOf(this.cloudGroup.onlineMode()));
+
+        try (var outputStream = Files.newOutputStream(serverPropertiesDir)) {
+            properties.store(outputStream, "GolgoCloud-Edit");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void terminate() {
         if (isAlive()) {
+            if (this.cloudGroup.staticService()) {
+                this.runCommand("save-all");
+                Quala.sleepUninterruptedly(500);
+            }
             this.runCommand("stop");
             Quala.sleepUninterruptedly(500);
         }
@@ -158,6 +212,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         }
 
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' terminated.");
+        CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceShutdownPacket(this.cloudService));
     }
 
     @Override

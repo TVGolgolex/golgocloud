@@ -7,7 +7,9 @@ import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.service.environment.CloudProxyService;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.common.service.packets.CloudServicePreparePacket;
+import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
+import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.utils.color.ConsoleColor;
 import dev.golgolex.quala.utils.string.StringUtils;
@@ -33,12 +35,14 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void updateService(@NotNull CloudService cloudService) {
-
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceUpdatePacket(cloudService), null);
     }
 
     @Override
     public void shutdownService(@NotNull CloudService cloudService) {
-
+        this.cloudServices.removeIf(it -> it.id().equalsIgnoreCase(cloudService.id()));
+        CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' was stopped.");
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
     }
 
     public void startedService(@NotNull CloudService cloudService) {
@@ -70,6 +74,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                 return;
             }
 
+            cloudService.instance(operatingInstance.uuid());
             CloudBase.instance().nettyServer().serverChannelTransmitter().getNetworkChannel(operatingInstance.uuid()).sendPacket(new CloudServicePreparePacket(cloudService));
             this.waitingService.add(cloudService);
             CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' is prepared.");
@@ -91,8 +96,9 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         id,
                         UUID.randomUUID(),
                         "#" + StringUtils.generateRandomString(12),
-                        cloudGroup.name(),
                         cloudGroup.serviceEnvironment(),
+                        cloudGroup.name(),
+                        null,
                         "",
                         ServicePortDetection.validPort(cloudGroup),
                         false,
@@ -108,8 +114,9 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         id,
                         UUID.randomUUID(),
                         "#" + StringUtils.generateRandomString(12),
-                        cloudGroup.name(),
                         cloudGroup.serviceEnvironment(),
+                        cloudGroup.name(),
+                        null,
                         "",
                         ServicePortDetection.validPort(cloudGroup),
                         false,

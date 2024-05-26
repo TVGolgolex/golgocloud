@@ -8,6 +8,7 @@ import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +26,11 @@ public abstract class CloudService implements BufferClass {
     private int serviceNumber;
     private UUID uuid;
     private String gameId;
-    private String group;
     private ServiceEnvironment environment;
+
+    private String group;
+    @Setter
+    private UUID instance;
 
     private String host;
     private int port;
@@ -43,8 +47,9 @@ public abstract class CloudService implements BufferClass {
         codecBuffer.writeInt(serviceNumber);
         codecBuffer.writeUniqueId(uuid);
         codecBuffer.writeString(gameId);
-        codecBuffer.writeString(group);
         codecBuffer.writeEnum(environment);
+        codecBuffer.writeString(group);
+        codecBuffer.writeUniqueId(instance);
         codecBuffer.writeString(host);
         codecBuffer.writeInt(port);
         codecBuffer.writeBoolean(ready);
@@ -61,8 +66,9 @@ public abstract class CloudService implements BufferClass {
         serviceNumber = codecBuffer.readInt();
         uuid = codecBuffer.readUniqueId();
         gameId = codecBuffer.readString();
-        group = codecBuffer.readString();
         environment = codecBuffer.readEnum(ServiceEnvironment.class);
+        group = codecBuffer.readString();
+        instance = codecBuffer.readUniqueId();
         host = codecBuffer.readString();
         port = codecBuffer.readInt();
         ready = codecBuffer.readBoolean();

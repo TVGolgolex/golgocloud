@@ -170,6 +170,9 @@ public class CloudInstance {
     }
 
     public void shutdown(boolean shutdownCycle) {
+        this.cloudInstance.ready(false);
+        this.nettyClient.thisNetworkChannel().sendPacket(new InstanceUpdatePacket(this.cloudInstance));
+
         for (var serviceFactory : this.serviceProvider.serviceFactories()) {
             serviceFactory.terminate();
         }
