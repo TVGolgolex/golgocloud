@@ -15,7 +15,7 @@
         <module>instance</module>
         <module>common</module>
         <module>logger</module>
-        <module>cloudapi</module>
+        <module>plugin</module>
     </modules>
 
     <properties>
