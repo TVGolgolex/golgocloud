@@ -4,6 +4,7 @@ import dev.golgolex.golgocloud.base.group.packet.CloudGroupCreatePacketReceiver;
 import dev.golgolex.golgocloud.base.group.packet.CloudGroupDeletePacketReceiver;
 import dev.golgolex.golgocloud.base.group.packet.CloudGroupUpdatePacketReceiver;
 import dev.golgolex.golgocloud.base.group.packet.CloudGroupsRequestPacketReceiver;
+import dev.golgolex.golgocloud.base.instance.packet.CloudInstancesRequestPacketReceiver;
 import dev.golgolex.golgocloud.base.instance.packet.InstanceAuthReceiver;
 import dev.golgolex.golgocloud.base.instance.packet.InstanceUpdatePacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceShutdownPacketReceiver;
@@ -16,6 +17,7 @@ import dev.golgolex.golgocloud.common.group.packets.CloudGroupUpdatePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupsRequestPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
+import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesRequestPacket;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
@@ -31,6 +33,7 @@ public final class CloudNetworkProviderImpl implements CloudNetworkProvider {
         // instance packets
         registry.registerPacketHandler(CloudInstanceAuthPacket.class, InstanceAuthReceiver.class);
         registry.registerPacketHandler(CloudInstanceUpdatePacket.class, InstanceUpdatePacketReceiver.class);
+        registry.registerPacketHandler(CloudInstancesRequestPacket.class, CloudInstancesRequestPacketReceiver.class);
 
         // Group packets
         registry.registerPacketHandler(CloudGroupsRequestPacket.class, CloudGroupsRequestPacketReceiver.class);
