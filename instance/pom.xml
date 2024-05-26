@@ -93,7 +93,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
@@ -105,19 +105,19 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/files</outputDirectory>
+                            <outputDirectory>${basedir}/target/classes/server-files/cloudapi</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/../api/api-plugin/target</directory>
+                                    <directory>${basedir}/../plugin/target</directory>
                                     <includes>
-                                        <include>LumeCloudAPI.jar</include>
+                                        <include>CloudPlugin.jar</include>
                                     </includes>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 </project>

@@ -16,6 +16,7 @@ import dev.golgolex.quala.netty5.NetworkCodec;
 import dev.golgolex.quala.netty5.client.NettyClient;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
@@ -65,6 +66,7 @@ public class CloudAPI {
         this.cloudNetworkProvider.initPacketReceivers(this.nettyClient.packetReceiverManager());
     }
 
+    @ApiStatus.Internal
     public void initialize() {
         this.configurationService.configurationOptional("network").ifPresentOrElse(configurationClass -> {
             var networkConfiguration = (NetworkConfiguration) configurationClass;
@@ -73,7 +75,6 @@ public class CloudAPI {
     }
 
     public void terminate(boolean shutdownCycle) {
-
         try {
             this.nettyClient.close();
         } catch (Exception e) {

@@ -1,0 +1,6 @@
+name: "CloudPlugin"
+version: "1.0.0"
+description: "Plugin for cloud integration"
+author: "GolgolexTV"
+main: "dev.golgolex.golgocloud.plugin.paper.CloudPaperPlugin"
+api-version: "1.20"

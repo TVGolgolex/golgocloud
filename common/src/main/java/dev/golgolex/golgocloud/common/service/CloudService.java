@@ -38,6 +38,8 @@ public abstract class CloudService implements BufferClass {
     @Setter
     private String path;
 
+    @ApiStatus.Internal
+    @Setter
     private String host;
     private int port;
     private boolean ready;

@@ -8,6 +8,7 @@ import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.golgocloud.instance.configuration.NetworkConfiguration;
 import dev.golgolex.quala.Quala;
+import dev.golgolex.quala.json.document.JsonDocument;
 import dev.golgolex.quala.utils.color.ConsoleColor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -61,6 +62,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
                 }
             }
 
+            this.cloudService.host(Quala.hostName());
             this.cloudService.path(this.dir.getAbsolutePath());
             CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' prepared.");
             this.start();
@@ -84,8 +86,8 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         }
 
         try {
-            Files.deleteIfExists(Paths.get(this.dir.toPath() + "/plugins/GolgoCloudAPI.jar"));
-            FileHelper.insertData("server-files/cloudapi/GolgoCloudAPI.jar", this.dir.toPath() + "/plugins/GolgoCloudAPI.jar");
+            Files.deleteIfExists(Paths.get(this.dir.toPath() + "/plugins/CloudPlugin.jar"));
+            FileHelper.insertData("server-files/cloudapi/CloudPlugin.jar", this.dir.toPath() + "/plugins/CloudPlugin.jar");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -152,6 +154,8 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             var networkConfiguration = (NetworkConfiguration) configurationClass;
             networkConfiguration.configuration().saveAsConfig(new File(configurationDirectory.toFile(), networkConfiguration.id() + ".json").toPath());
         });
+
+        new JsonDocument().write("cloudService", cloudService).saveAsConfig(new File(configurationDirectory.toFile(), "cloud-service.json").toPath());
     }
 
     /**
