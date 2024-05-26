@@ -11,38 +11,8 @@ import java.util.UUID;
 
 public class CloudProxyService extends CloudService {
 
-    public CloudProxyService(
-            String id,
-            int serviceNumber,
-            UUID uuid,
-            String gameId,
-            ServiceEnvironment environment,
-            String group,
-            UUID instance,
-            String host,
-            int port,
-            boolean ready,
-            long memory,
-            int maxPlayers,
-            List<ServicePlayer> online,
-            List<ServicePlayer> connected
-    ) {
-        super(
-                id,
-                serviceNumber,
-                uuid,
-                gameId,
-                environment,
-                group,
-                instance,
-                host,
-                port,
-                ready,
-                memory,
-                maxPlayers,
-                online,
-                connected
-        );
+    public CloudProxyService(String id, int serviceNumber, UUID uuid, String gameId, ServiceEnvironment environment, String group, UUID instance, String template, String path, String host, int port, boolean ready, long memory, int maxPlayers, List<ServicePlayer> online, List<ServicePlayer> connected) {
+        super(id, serviceNumber, uuid, gameId, environment, group, instance, template, path, host, port, ready, memory, maxPlayers, online, connected);
     }
 
     public CloudProxyService() {

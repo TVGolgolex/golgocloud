@@ -1,14 +1,12 @@
 package dev.golgolex.golgocloud.base;
 
-import dev.golgolex.golgocloud.base.configuration.BaseConfiguration;
-import dev.golgolex.golgocloud.base.configuration.GroupsConfiguration;
-import dev.golgolex.golgocloud.base.configuration.InstanceConfiguration;
-import dev.golgolex.golgocloud.base.configuration.NetworkConfiguration;
+import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.base.instance.CloudInstanceService;
 import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
+import dev.golgolex.golgocloud.base.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.logger.Logger;
@@ -38,6 +36,7 @@ public final class CloudBase {
     private final CloudInstanceService instanceService;
     private final CloudGroupProviderImpl groupProvider;
     private final CloudServiceProviderImpl serviceProvider;
+    private final CloudTemplateProviderImpl templateProvider;
     private final Scheduler scheduler = new Scheduler(50);
 
     public CloudBase() throws IOException, NoSuchFieldException, IllegalAccessException {
@@ -69,12 +68,14 @@ public final class CloudBase {
         this.instanceService = new CloudInstanceService();
         this.groupProvider = new CloudGroupProviderImpl();
         this.serviceProvider = new CloudServiceProviderImpl();
+        this.templateProvider = new CloudTemplateProviderImpl();
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
                 new NetworkConfiguration(this.configurationService.configurationDirectory()),
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
-                new GroupsConfiguration(this.configurationService.configurationDirectory())
+                new GroupsConfiguration(this.configurationService.configurationDirectory()),
+                new TemplateConfiguration(this.configurationService.configurationDirectory())
         );
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 

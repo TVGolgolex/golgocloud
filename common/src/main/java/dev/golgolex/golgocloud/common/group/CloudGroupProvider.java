@@ -6,8 +6,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The CloudGroupProvider interface provides methods for retrieving, updating, deleting, and creating cloud groups.
+ * It allows access to a list of CloudGroup objects and provides filtering based on ServiceEnvironment.
+ */
 public interface CloudGroupProvider {
 
+    /**
+     * Retrieves a list of CloudGroup objects.
+     *
+     * @return A list of CloudGroup objects.
+     */
     List<CloudGroup> cloudGroups();
 
     /**

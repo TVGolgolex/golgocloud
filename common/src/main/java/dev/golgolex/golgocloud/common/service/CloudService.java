@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,15 +30,20 @@ public abstract class CloudService implements BufferClass {
     private ServiceEnvironment environment;
 
     private String group;
+    @ApiStatus.Internal
     @Setter
     private UUID instance;
+    private String template;
+    @ApiStatus.Internal
+    @Setter
+    private String path;
 
     private String host;
     private int port;
     private boolean ready;
     private long memory;
 
-    protected int maxPlayers;
+    private int maxPlayers;
     private List<ServicePlayer> online;
     private List<ServicePlayer> connected;
 
@@ -50,6 +56,8 @@ public abstract class CloudService implements BufferClass {
         codecBuffer.writeEnum(environment);
         codecBuffer.writeString(group);
         codecBuffer.writeUniqueId(instance);
+        codecBuffer.writeString(template);
+        codecBuffer.writeString(path);
         codecBuffer.writeString(host);
         codecBuffer.writeInt(port);
         codecBuffer.writeBoolean(ready);
@@ -69,6 +77,8 @@ public abstract class CloudService implements BufferClass {
         environment = codecBuffer.readEnum(ServiceEnvironment.class);
         group = codecBuffer.readString();
         instance = codecBuffer.readUniqueId();
+        template = codecBuffer.readString();
+        path = codecBuffer.readString();
         host = codecBuffer.readString();
         port = codecBuffer.readInt();
         ready = codecBuffer.readBoolean();

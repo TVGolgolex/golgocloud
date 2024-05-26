@@ -10,6 +10,7 @@ import dev.golgolex.golgocloud.common.service.packets.CloudServicePreparePacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
+import dev.golgolex.golgocloud.common.template.CloudServiceTemplate;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.utils.color.ConsoleColor;
 import dev.golgolex.quala.utils.string.StringUtils;
@@ -20,14 +21,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)
 public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
-    private final List<CloudService> cloudServices = new ArrayList<>();
-    private final List<CloudService> waitingService = new ArrayList<>();
+    private List<CloudService> cloudServices = new ArrayList<>();
+    private List<CloudService> waitingService = new ArrayList<>();
 
     @Override
     public void reloadServices() {
@@ -40,13 +42,13 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void shutdownService(@NotNull CloudService cloudService) {
-        this.cloudServices.removeIf(it -> it.id().equalsIgnoreCase(cloudService.id()));
+        this.cloudServices = this.resetList(this.cloudServices, it -> it.id().equalsIgnoreCase(cloudService.id()));
         CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' was stopped.");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
     }
 
     public void startedService(@NotNull CloudService cloudService) {
-        this.waitingService.removeIf(it -> it.id().equalsIgnoreCase(cloudService.id()));
+        this.waitingService = this.resetList(this.waitingService, it -> it.id().equalsIgnoreCase(cloudService.id()));
         this.cloudServices.add(cloudService);
         CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceStartedPacket(cloudService), null);
@@ -54,9 +56,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void prepareService(@NotNull CloudService cloudService) {
-        var group = CloudBase.instance().groupProvider().cloudGroup(cloudService.group());
-
-        group.ifPresentOrElse(cloudGroup -> {
+        CloudBase.instance().groupProvider().cloudGroup(cloudService.group()).ifPresentOrElse(cloudGroup -> {
             var instances = CloudBase.instance().instanceService().connectedCloudInstances().stream().filter(cloudInstance -> cloudGroup.instances().contains(cloudInstance.uuid())).toList();
 
             if (instances.isEmpty()) {
@@ -89,6 +89,22 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
             id++;
         }
 
+        var templates = CloudBase.instance().templateProvider().cloudServiceTemplates(cloudGroup.name());
+
+        CloudServiceTemplate template;
+        if (templates.isEmpty()) {
+            template = new CloudServiceTemplate(
+                    cloudGroup.name(),
+                    "default",
+                    true,
+                    cloudGroup.instances()
+            );
+            CloudBase.instance().templateProvider().createCloudServiceTemplate(template);
+        } else {
+            template = templates.get(Quala.randomNumber(templates.size()));
+        }
+
+
         switch (cloudGroup.serviceEnvironment()) {
             case SERVER -> {
                 return new CloudServerService(
@@ -99,6 +115,8 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         cloudGroup.serviceEnvironment(),
                         cloudGroup.name(),
                         null,
+                        template.id(),
+                        "",
                         "",
                         ServicePortDetection.validPort(cloudGroup),
                         false,
@@ -117,6 +135,8 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         cloudGroup.serviceEnvironment(),
                         cloudGroup.name(),
                         null,
+                        template.id(),
+                        "",
                         "",
                         ServicePortDetection.validPort(cloudGroup),
                         false,
@@ -139,5 +159,11 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     public List<CloudService> waitingServices(@NotNull String group) {
         return this.waitingService.stream().filter(cloudService -> cloudService.group().equalsIgnoreCase(group)).toList();
+    }
+
+    private <T> List<T> resetList(@NotNull List<T> list, Predicate<T> filter) {
+        var arrayList = new ArrayList<>(list);
+        arrayList.removeIf(filter);
+        return arrayList;
     }
 }

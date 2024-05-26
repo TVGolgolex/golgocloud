@@ -1,16 +1,18 @@
 package dev.golgolex.golgocloud.instance;
 
 import dev.golgolex.golgocloud.common.FileHelper;
-import dev.golgolex.golgocloud.common.configuration.ConfigurationClass;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceUpdatePacket;
-import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
+import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.instance.configuration.InstanceConfiguration;
 import dev.golgolex.golgocloud.instance.configuration.NetworkConfiguration;
 import dev.golgolex.golgocloud.instance.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.instance.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.instance.service.CloudServiceProcessQueue;
 import dev.golgolex.golgocloud.instance.service.CloudServiceProviderImpl;
+import dev.golgolex.golgocloud.instance.service.CloudServiceWorkerThread;
+import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.instance.version.CloudServiceVersionProvider;
 import dev.golgolex.golgocloud.logger.Logger;
 import dev.golgolex.quala.Quala;
@@ -41,6 +43,9 @@ public class CloudInstance {
     private final CloudGroupProviderImpl groupProvider;
     private final CloudServiceVersionProvider serviceVersionProvider;
     private final CloudServiceProviderImpl serviceProvider;
+    private final CloudTemplateProviderImpl templateProvider;
+    private final Scheduler scheduler = new Scheduler(40);
+    private CloudServiceProcessQueue serverProcessQueue;
     private UUID instanceId;
     private NettyClient nettyClient;
     private boolean osLinux;
@@ -70,6 +75,7 @@ public class CloudInstance {
         this.groupProvider = new CloudGroupProviderImpl();
         this.serviceVersionProvider = new CloudServiceVersionProvider(this.instanceDirectory);
         this.serviceProvider = new CloudServiceProviderImpl(this.instanceDirectory);
+        this.templateProvider = new CloudTemplateProviderImpl(this.instanceDirectory);
 
         this.configurationService.addConfiguration(
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
@@ -143,6 +149,14 @@ public class CloudInstance {
         this.configurationService.configurationOptional("instance").ifPresentOrElse(configurationClass -> {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
             this.nettyClient.thisNetworkChannel().sendPacket(new InstanceAuthPacket(this.instanceId, instanceConfiguration.authKey()));
+            instanceConfiguration.configuration().write("maximalMemory", (Quala.systemMemory() / 1048576) - 2048);
+            instanceConfiguration.save();
+
+            if (instanceConfiguration.maximalMemory() < 1024) {
+                System.err.println("WARNING: YOU CAN'T USE THE CLOUD NETWORK SOFTWARE WITH SUCH A SMALL MEMORY SIZE!");
+            }
+
+            this.serverProcessQueue = new CloudServiceProcessQueue(instanceConfiguration.processQueueSize());
         }, () -> this.logger.log(Level.SEVERE, "No instance configuration found."));
 
         while (this.cloudInstance == null) {
@@ -154,7 +168,20 @@ public class CloudInstance {
             this.connectionTry++;
         }
 
+        var schedulerThread = new Thread(this.scheduler);
+        schedulerThread.setPriority(Thread.MIN_PRIORITY);
+        schedulerThread.setDaemon(true);
+        schedulerThread.start();
+
+        var processQueueThread = new Thread(this.serverProcessQueue);
+        processQueueThread.setPriority(Thread.MIN_PRIORITY);
+        processQueueThread.setDaemon(true);
+        processQueueThread.start();
+
         this.groupProvider.reloadGroups();
+        this.templateProvider.reloadTemplates();
+
+        new CloudServiceWorkerThread().init(scheduler);
 
         Quala.sleepUninterruptedly(1000);
 
@@ -167,6 +194,7 @@ public class CloudInstance {
             configuration.reload();
         }
         this.groupProvider.reloadGroups();
+        this.templateProvider.reloadTemplates();
     }
 
     public void shutdown(boolean shutdownCycle) {

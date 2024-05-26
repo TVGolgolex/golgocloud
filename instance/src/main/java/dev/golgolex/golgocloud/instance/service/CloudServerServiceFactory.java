@@ -61,6 +61,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
                 }
             }
 
+            this.cloudService.path(this.dir.getAbsolutePath());
             CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' prepared.");
             this.start();
         }, () -> {
@@ -115,6 +116,8 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
                 throw new RuntimeException(e);
             }
         }
+
+        CloudInstance.instance().templateProvider().copyFiles(this.cloudService);
 
         this.fileConfigration();
         this.serverPropertiesConfiguration();
@@ -211,8 +214,8 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             FileHelper.deleteDirectory(this.dir);
         }
 
+        CloudInstance.instance().serviceProvider().shutdownService(cloudService);
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' terminated.");
-        CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceShutdownPacket(this.cloudService));
     }
 
     @Override

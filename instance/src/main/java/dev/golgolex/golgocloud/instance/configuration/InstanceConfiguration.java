@@ -22,7 +22,10 @@ public class InstanceConfiguration extends ConfigurationClass {
                 .write("instance-id", UUID.randomUUID().toString())
                 .write("base-directory-path", CloudInstance.instance().instanceDirectory().getAbsolutePath())
                 .write("consoleDebug", false)
-                .write("nettyDebug", false);
+                .write("nettyDebug", false)
+                .write("percentOfCPUForANewServer", 100D)
+                .write("processQueueSize", (Runtime.getRuntime().availableProcessors() / 2))
+                .write("maximalMemory", -1);
     }
 
     public String authKey() {
@@ -31,6 +34,18 @@ public class InstanceConfiguration extends ConfigurationClass {
 
     public UUID instanceId() {
         return UUID.fromString(this.configuration().readString("instance-id"));
+    }
+
+    public int processQueueSize() {
+        return this.configuration().readInteger("processQueueSize");
+    }
+
+    public double percentOfCPUForANewServer() {
+        return this.configuration().readDouble("percentOfCPUForANewServer");
+    }
+
+    public long maximalMemory() {
+        return this.configuration().readLong("maximalMemory");
     }
 
     public Path baseDirectoryPath() {
