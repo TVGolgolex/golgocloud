@@ -6,6 +6,7 @@ import dev.golgolex.golgocloud.common.instance.CloudInstance;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceAuthReplyPacket;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceUpdatePacket;
+import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.quala.event.EventRegistry;
 import dev.golgolex.quala.netty5.channel.NetworkChannel;
 import lombok.Getter;
@@ -111,6 +112,9 @@ public final class CloudInstanceService {
     public void disconnect(@NotNull CloudInstance cloudInstance) {
         this.connectedCloudInstances.removeIf(it -> it.uuid().equals(cloudInstance.uuid()));
         CloudBase.instance().logger().log(Level.INFO, "Instance '" + cloudInstance.id() + "' disconnected");
+        for (var cloudService : CloudBase.instance().serviceProvider().cloudServices().stream().filter(cloudService -> cloudService.instance().equals(cloudInstance.uuid())).toList()) {
+            CloudBase.instance().serviceProvider().shutdownService(cloudService);
+        }
     }
 
 }
