@@ -1,7 +1,10 @@
 package dev.golgolex.golgocloud.instance.service;
 
+import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.instance.CloudInstance;
+
+import java.util.ArrayList;
 
 public final class CloudServiceWorkerThread implements Runnable {
 
@@ -11,11 +14,11 @@ public final class CloudServiceWorkerThread implements Runnable {
 
     @Override
     public void run() {
-        CloudInstance.instance().serviceProvider().serviceFactories().forEach(cloudServiceFactory -> {
+        for (var cloudServiceFactory : new ArrayList<>(CloudInstance.instance().serviceProvider().serviceFactories())) {
             if (!cloudServiceFactory.isAlive() && cloudServiceFactory.startupTimeStamp() != 0
                     && (System.currentTimeMillis() > (cloudServiceFactory.startupTimeStamp() + 10000))) {
                 cloudServiceFactory.terminate();
             }
-        });
+        }
     }
 }
