@@ -4,7 +4,6 @@ import dev.golgolex.golgocloud.common.FileHelper;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
-import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.quala.Quala;
@@ -220,11 +219,12 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
 
     @Override
     public boolean isAlive() {
+        if (process == null) {
+            return false;
+        }
+
         try {
-            return process != null
-                    && CloudInstance.instance().osLinux()
-                    ? CloudServiceScreenHelper.isScreenExisting(cloudService.id() + "#" + cloudService.uuid().toString()) : Objects.requireNonNull(process).isAlive()
-                    && process.getInputStream().available() != -1;
+            return CloudInstance.instance().osLinux() ? CloudServiceScreenHelper.isScreenExisting(cloudService.id() + "#" + cloudService.uuid().toString()) : Objects.requireNonNull(process).isAlive() && process.getInputStream().available() != -1;
         } catch (IOException e) {
             return false;
         }
