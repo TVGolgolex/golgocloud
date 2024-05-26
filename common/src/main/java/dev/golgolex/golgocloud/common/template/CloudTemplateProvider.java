@@ -1,10 +1,18 @@
 package dev.golgolex.golgocloud.common.template;
 
-import java.util.ArrayList;
+import dev.golgolex.golgocloud.common.service.CloudService;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public interface CloudTemplateProvider {
 
-    List<CloudTemplate> templates = new ArrayList<>();
+    List<CloudTemplate> cloudTemplates();
+
+    CloudTemplate cloudTemplate(@NotNull String id, @NotNull String group);
+
+    List<CloudTemplate> cloudTemplates(@NotNull String group);
+
+    void insertTemplate(@NotNull CloudService cloudService, @NotNull String id);
 
 }
