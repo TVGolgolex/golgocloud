@@ -4,6 +4,7 @@ import dev.golgolex.golgocloud.common.FileHelper;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
+import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.utils.color.ConsoleColor;
@@ -136,6 +137,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceStartedPacket(this.cloudService));
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
     }
 
