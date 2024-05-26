@@ -13,6 +13,8 @@ public interface CloudTemplateProvider {
 
     List<CloudTemplate> cloudTemplates(@NotNull String group);
 
+    void reloadTemplates();
+
     void insertTemplate(@NotNull CloudService cloudService, @NotNull String id);
 
 }
