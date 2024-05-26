@@ -23,6 +23,13 @@ public final class ConfigurationService {
         }
     }
 
+    public ConfigurationService(@NotNull File baseDirectory, @NotNull String child) {
+        this.configurationDirectory = new File(baseDirectory, child);
+        if (!configurationDirectory.exists()) {
+            var ignore = configurationDirectory.mkdirs();
+        }
+    }
+
     public void addConfiguration(@NotNull ConfigurationClass... configurationClasses) {
         for (var configurationClass : configurationClasses) {
             this.configurations.add(configurationClass);

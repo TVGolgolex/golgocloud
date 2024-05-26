@@ -6,6 +6,7 @@ import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
+import dev.golgolex.golgocloud.instance.configuration.NetworkConfiguration;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.utils.color.ConsoleColor;
 import lombok.Getter;
@@ -89,19 +90,6 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             throw new RuntimeException(e);
         }
 
-        var configurationDirectory = Paths.get(this.dir + "/.cloud-configuration");
-        if (Files.exists(configurationDirectory)) {
-            for (var file : Objects.requireNonNull(configurationDirectory.toFile().listFiles())) {
-                var ignored = file.delete();
-            }
-        }
-        try {
-            Files.deleteIfExists(configurationDirectory);
-            Files.createDirectory(configurationDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         var versionPath = new File(CloudInstance.instance().serviceVersionProvider().paperVersionsDirectory(), "paper-" + cloudGroup.version() + ".jar");
         if (!Files.exists(versionPath.toPath())) {
             System.err.println("No Paper version for " + cloudGroup.name() + " (" + cloudGroup.version() + ") found.");
@@ -118,6 +106,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
 
         CloudInstance.instance().templateProvider().copyFiles(this.cloudService);
 
+        this.cloudFileConfiguration();
         this.fileConfigration();
         this.serverPropertiesConfiguration();
 
@@ -142,6 +131,27 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         }
         CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceStartedPacket(this.cloudService));
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
+    }
+
+    public void cloudFileConfiguration() {
+        var configurationDirectory = Paths.get(this.dir + "/.cloud-configuration");
+        if (Files.exists(configurationDirectory)) {
+            for (var file : Objects.requireNonNull(configurationDirectory.toFile().listFiles())) {
+                var ignored = file.delete();
+            }
+        }
+
+        try {
+            Files.deleteIfExists(configurationDirectory);
+            Files.createDirectory(configurationDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        CloudInstance.instance().configurationService().configurationOptional("network").ifPresent(configurationClass -> {
+            var networkConfiguration = (NetworkConfiguration) configurationClass;
+            networkConfiguration.configuration().saveAsConfig(new File(configurationDirectory.toFile(), networkConfiguration.id() + ".json").toPath());
+        });
     }
 
     /**
