@@ -6,6 +6,7 @@ import dev.golgolex.quala.netty5.protocol.Packet;
 import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Accessors(fluent = true)
@@ -16,7 +17,7 @@ public class AbstractCloudServicePacket extends Packet {
     /**
      * Represents an abstract class for a packet related to a cloud service.
      */
-    public AbstractCloudServicePacket(CloudService cloudService) {
+    public AbstractCloudServicePacket(@NotNull CloudService cloudService) {
         this.cloudService = cloudService;
         buffer.writeEnum(cloudService.environment());
         cloudService.writeBuffer(buffer);

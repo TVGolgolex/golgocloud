@@ -22,6 +22,7 @@ import java.util.UUID;
 public abstract class CloudService implements BufferClass {
 
     private String id;
+    private int serviceNumber;
     private UUID uuid;
     private String gameId;
     private String group;
@@ -39,6 +40,7 @@ public abstract class CloudService implements BufferClass {
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
         codecBuffer.writeString(id);
+        codecBuffer.writeInt(serviceNumber);
         codecBuffer.writeUniqueId(uuid);
         codecBuffer.writeString(gameId);
         codecBuffer.writeString(group);
@@ -56,6 +58,7 @@ public abstract class CloudService implements BufferClass {
     @Override
     public void readBuffer(@NotNull CodecBuffer codecBuffer) {
         id = codecBuffer.readString();
+        serviceNumber = codecBuffer.readInt();
         uuid = codecBuffer.readUniqueId();
         gameId = codecBuffer.readString();
         group = codecBuffer.readString();

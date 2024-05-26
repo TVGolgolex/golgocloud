@@ -5,6 +5,7 @@ import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +21,8 @@ public final class CloudInstance implements BufferClass {
     private UUID uuid;
     private String host;
     private String domain;
+    @Setter
+    private boolean ready;
 
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
@@ -27,6 +30,7 @@ public final class CloudInstance implements BufferClass {
         codecBuffer.writeUniqueId(uuid);
         codecBuffer.writeString(host);
         codecBuffer.writeString(domain);
+        codecBuffer.writeBoolean(ready);
     }
 
     @Override
@@ -35,5 +39,6 @@ public final class CloudInstance implements BufferClass {
         uuid = codecBuffer.readUniqueId();
         host = codecBuffer.readString();
         domain = codecBuffer.readString();
+        ready = codecBuffer.readBoolean();
     }
 }

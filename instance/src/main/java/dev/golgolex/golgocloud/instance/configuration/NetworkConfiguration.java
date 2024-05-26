@@ -16,8 +16,7 @@ public class NetworkConfiguration extends ConfigurationClass {
     public JsonDocument defaultConfiguration() {
         return new JsonDocument()
                 .write("base-netty-server-hostname", "127.0.0.1")
-                .write("base-netty-server-port", 8087)
-                ;
+                .write("base-netty-server-port", 8087);
     }
 
     public String nettyServerHostname() {

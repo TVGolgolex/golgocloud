@@ -1,9 +1,12 @@
-package dev.golgolex.golgocloud.base.groups;
+package dev.golgolex.golgocloud.base.group;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.base.configuration.GroupsConfiguration;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;
+import dev.golgolex.golgocloud.common.group.packets.CloudGroupCreatePacket;
+import dev.golgolex.golgocloud.common.group.packets.CloudGroupDeletePacket;
+import dev.golgolex.golgocloud.common.group.packets.CloudGroupUpdatePacket;
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
 import dev.golgolex.quala.json.document.JsonDocument;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Getter
 @Accessors(fluent = true)
@@ -22,6 +26,7 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
 
     @Override
     public void reloadGroups() {
+        this.cloudGroups.clear();
         CloudBase.instance().configurationService().configurationOptional("groups").ifPresentOrElse(configurationClass -> {
             var groupsConfiguration = (GroupsConfiguration) configurationClass;
             this.cloudGroups.addAll(groupsConfiguration.groups());
@@ -49,12 +54,24 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
                 );
                 this.createGroup(defaultGroup);
             }
+
+            CloudBase.instance().logger().log(Level.INFO, "Loaded following groups: " + this.cloudGroups.stream()
+                    .map(CloudGroup::name)
+                    .collect(Collectors.joining(", ")));
         }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
     }
 
     @Override
     public void updateGroup(@NotNull CloudGroup cloudGroup) {
-
+        CloudBase.instance().configurationService().configurationOptional("groups").ifPresentOrElse(configurationClass -> {
+            var groupsConfiguration = (GroupsConfiguration) configurationClass;
+            var list = groupsConfiguration.groups();
+            list.removeIf(it -> it.name().equalsIgnoreCase(cloudGroup.name()));
+            list.add(cloudGroup);
+            groupsConfiguration.groups(list);
+            groupsConfiguration.save();
+            CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupUpdatePacket(cloudGroup), null);
+        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
     }
 
     @Override
@@ -66,6 +83,7 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
             list.removeIf(it -> it.name().equalsIgnoreCase(cloudGroup.name()));
             groupsConfiguration.groups(list);
             groupsConfiguration.save();
+            CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupDeletePacket(cloudGroup), null);
         }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
     }
 
@@ -78,6 +96,7 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
             list.add(cloudGroup);
             groupsConfiguration.groups(list);
             groupsConfiguration.save();
+            CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupCreatePacket(cloudGroup), null);
         }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
     }
 }

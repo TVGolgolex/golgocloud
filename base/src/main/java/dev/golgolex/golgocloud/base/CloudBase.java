@@ -1,14 +1,16 @@
 package dev.golgolex.golgocloud.base;
 
+import dev.golgolex.golgocloud.base.configuration.BaseConfiguration;
 import dev.golgolex.golgocloud.base.configuration.GroupsConfiguration;
 import dev.golgolex.golgocloud.base.configuration.InstanceConfiguration;
-import dev.golgolex.golgocloud.base.groups.CloudGroupProviderImpl;
-import dev.golgolex.golgocloud.base.instance.CloudInstanceService;
-import dev.golgolex.golgocloud.base.network.NetworkManager;
-import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
-import dev.golgolex.golgocloud.base.configuration.BaseConfiguration;
 import dev.golgolex.golgocloud.base.configuration.NetworkConfiguration;
-import dev.golgolex.golgocloud.common.group.CloudGroup;
+import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
+import dev.golgolex.golgocloud.base.instance.CloudInstanceService;
+import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
+import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
+import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
+import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.logger.Logger;
 import dev.golgolex.quala.netty5.InactiveAction;
 import dev.golgolex.quala.netty5.NetworkCodec;
@@ -21,7 +23,6 @@ import lombok.experimental.Accessors;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Getter
 @Accessors(fluent = true)
@@ -33,9 +34,11 @@ public final class CloudBase {
     private final Logger logger;
     private final ConfigurationService configurationService;
     private final NettyServer nettyServer;
-    private final NetworkManager networkManager;
+    private final CloudNetworkProviderImpl networkProvider;
     private final CloudInstanceService instanceService;
     private final CloudGroupProviderImpl groupProvider;
+    private final CloudServiceProviderImpl serviceProvider;
+    private final Scheduler scheduler = new Scheduler(50);
 
     public CloudBase() throws IOException, NoSuchFieldException, IllegalAccessException {
         instance = this;
@@ -62,9 +65,10 @@ public final class CloudBase {
                 this.logger.log(Level.SEVERE, "Communication handler failed to connect.", future.cause());
             }
         });
-        this.networkManager = new NetworkManager();
+        this.networkProvider = new CloudNetworkProviderImpl();
         this.instanceService = new CloudInstanceService();
         this.groupProvider = new CloudGroupProviderImpl();
+        this.serviceProvider = new CloudServiceProviderImpl();
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
@@ -72,7 +76,7 @@ public final class CloudBase {
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
                 new GroupsConfiguration(this.configurationService.configurationDirectory())
         );
-        this.networkManager.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
+        this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 
         this.logger.log(Level.INFO, "");
         this.logger.log(Level.INFO, "    "
@@ -117,9 +121,18 @@ public final class CloudBase {
 
         this.groupProvider.reloadGroups();
 
-        this.logger.log(Level.INFO, "Loaded following groups: " + this.groupProvider.cloudGroups().stream()
-                .map(CloudGroup::name)
-                .collect(Collectors.joining(", ")));
+        var schedulerThread = new Thread(this.scheduler);
+        schedulerThread.setDaemon(true);
+        schedulerThread.start();
+
+        new CloudServiceWorkerThread(this).init();
+    }
+
+    public void reload() {
+        for (var configuration : this.configurationService.configurations()) {
+            configuration.reload();
+        }
+        this.groupProvider.reloadGroups();
     }
 
     public void shutdown(boolean shutdownCycle) {

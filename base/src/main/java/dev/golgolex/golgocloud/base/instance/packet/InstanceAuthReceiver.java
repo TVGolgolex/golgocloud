@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.base.instance;
+package dev.golgolex.golgocloud.base.instance.packet;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.instance.packet.InstanceAuthPacket;
