@@ -1,6 +1,7 @@
 package dev.golgolex.golgocloud.cloudapi.template;
 
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.common.instance.CloudInstance;
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.template.CloudServiceTemplate;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
@@ -12,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Getter
 @Accessors(fluent = true)
@@ -44,5 +47,10 @@ public class CloudTemplateProviderImpl implements CloudTemplateProvider {
         this.cloudServiceTemplates.clear();
         CloudServiceTemplatesReplyPacket reply = CloudAPI.instance().nettyClient().thisNetworkChannel().sendQuery(new CloudServiceTemplatesRequestPacket());
         this.cloudServiceTemplates.addAll(reply.cloudServiceTemplates());
+        if (!this.cloudServiceTemplates.isEmpty()) {
+            CloudAPI.instance().logger().log(Level.INFO, "Loaded following service templates: " + this.cloudServiceTemplates.stream()
+                    .map(CloudServiceTemplate::id)
+                    .collect(Collectors.joining(", ")));
+        }
     }
 }
