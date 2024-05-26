@@ -2,8 +2,8 @@ package dev.golgolex.golgocloud.instance;
 
 import dev.golgolex.golgocloud.common.FileHelper;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
-import dev.golgolex.golgocloud.common.instance.packet.InstanceAuthPacket;
-import dev.golgolex.golgocloud.common.instance.packet.InstanceUpdatePacket;
+import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
+import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.instance.configuration.InstanceConfiguration;
 import dev.golgolex.golgocloud.instance.configuration.NetworkConfiguration;
@@ -148,7 +148,7 @@ public class CloudInstance {
 
         this.configurationService.configurationOptional("instance").ifPresentOrElse(configurationClass -> {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
-            this.nettyClient.thisNetworkChannel().sendPacket(new InstanceAuthPacket(this.instanceId, instanceConfiguration.authKey()));
+            this.nettyClient.thisNetworkChannel().sendPacket(new CloudInstanceAuthPacket(this.instanceId, instanceConfiguration.authKey()));
             instanceConfiguration.configuration().write("maximalMemory", (Quala.systemMemory() / 1048576) - 2048);
             instanceConfiguration.save();
 
@@ -168,6 +168,8 @@ public class CloudInstance {
             this.connectionTry++;
         }
 
+        this.cloudInstance.path(this.instanceDirectory.getAbsolutePath());
+
         var schedulerThread = new Thread(this.scheduler);
         schedulerThread.setPriority(Thread.MIN_PRIORITY);
         schedulerThread.setDaemon(true);
@@ -186,7 +188,7 @@ public class CloudInstance {
         Quala.sleepUninterruptedly(1000);
 
         this.cloudInstance.ready(true);
-        this.nettyClient.thisNetworkChannel().sendPacket(new InstanceUpdatePacket(this.cloudInstance));
+        this.nettyClient.thisNetworkChannel().sendPacket(new CloudInstanceUpdatePacket(this.cloudInstance));
     }
 
     public void reload() {
@@ -199,7 +201,7 @@ public class CloudInstance {
 
     public void shutdown(boolean shutdownCycle) {
         this.cloudInstance.ready(false);
-        this.nettyClient.thisNetworkChannel().sendPacket(new InstanceUpdatePacket(this.cloudInstance));
+        this.nettyClient.thisNetworkChannel().sendPacket(new CloudInstanceUpdatePacket(this.cloudInstance));
 
         for (var serviceFactory : this.serviceProvider.serviceFactories()) {
             serviceFactory.terminate();

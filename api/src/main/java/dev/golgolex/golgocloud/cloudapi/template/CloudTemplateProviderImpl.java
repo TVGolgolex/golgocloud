@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.api.template;
+package dev.golgolex.golgocloud.cloudapi.template;
 
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.template.CloudServiceTemplate;

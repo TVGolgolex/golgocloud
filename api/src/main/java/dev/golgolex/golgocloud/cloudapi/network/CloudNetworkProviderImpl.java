@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.api.network;
+package dev.golgolex.golgocloud.cloudapi.network;
 
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiverManager;

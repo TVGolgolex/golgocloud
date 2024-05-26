@@ -10,12 +10,12 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
-public final class InstanceAuthPacket extends Packet {
+public final class CloudInstanceAuthPacket extends Packet {
 
     private final UUID instanceId;
     private final String authKey;
 
-    public InstanceAuthPacket(
+    public CloudInstanceAuthPacket(
             @NotNull UUID instanceId,
             @NotNull String authKey
     ) {
@@ -25,7 +25,7 @@ public final class InstanceAuthPacket extends Packet {
         buffer.writeString(this.authKey);
     }
 
-    public InstanceAuthPacket(CodecBuffer buffer) {
+    public CloudInstanceAuthPacket(CodecBuffer buffer) {
         super(buffer);
         this.instanceId = buffer.readUniqueId();
         this.authKey = buffer.readString();

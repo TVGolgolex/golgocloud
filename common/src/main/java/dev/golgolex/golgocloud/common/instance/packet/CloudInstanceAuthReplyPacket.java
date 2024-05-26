@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
-public final class InstanceAuthReplyPacket extends Packet {
+public final class CloudInstanceAuthReplyPacket extends Packet {
 
     private final CloudInstance cloudInstance;
 
@@ -17,7 +17,7 @@ public final class InstanceAuthReplyPacket extends Packet {
      *
      * @param cloudInstance the instance for the reply packet
      */
-    public InstanceAuthReplyPacket(CloudInstance cloudInstance) {
+    public CloudInstanceAuthReplyPacket(CloudInstance cloudInstance) {
         this.cloudInstance = cloudInstance;
         buffer.writeNullable(this.cloudInstance, this.cloudInstance::writeBuffer);
     }
@@ -28,7 +28,7 @@ public final class InstanceAuthReplyPacket extends Packet {
      *
      * @param buffer The CodecBuffer containing the instance data.
      */
-    public InstanceAuthReplyPacket(CodecBuffer buffer) {
+    public CloudInstanceAuthReplyPacket(CodecBuffer buffer) {
         super(buffer);
         this.cloudInstance = buffer.readNullable(CloudInstance.class, () -> {
             var instance = new CloudInstance();

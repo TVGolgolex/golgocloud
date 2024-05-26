@@ -1,12 +1,14 @@
-package dev.golgolex.golgocloud.api;
+package dev.golgolex.golgocloud.cloudapi;
 
-import dev.golgolex.golgocloud.api.configuration.NetworkConfiguration;
-import dev.golgolex.golgocloud.api.group.CloudGroupProviderImpl;
-import dev.golgolex.golgocloud.api.network.CloudNetworkProviderImpl;
-import dev.golgolex.golgocloud.api.service.CloudServiceProviderImpl;
-import dev.golgolex.golgocloud.api.template.CloudTemplateProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.configuration.NetworkConfiguration;
+import dev.golgolex.golgocloud.cloudapi.group.CloudGroupProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.instance.CloudInstanceProviderIpl;
+import dev.golgolex.golgocloud.cloudapi.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.service.CloudServiceProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;
+import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
@@ -39,6 +41,7 @@ public class CloudAPI {
     private final CloudGroupProvider cloudGroupProvider;
     private final CloudServiceProvider cloudServiceProvider;
     private final CloudTemplateProvider cloudTemplateProvider;
+    private final CloudInstanceProvider cloudInstanceProvider;
     private final NettyClient nettyClient;
 
     /**
@@ -54,6 +57,7 @@ public class CloudAPI {
         this.cloudGroupProvider = new CloudGroupProviderImpl();
         this.cloudServiceProvider = new CloudServiceProviderImpl();
         this.cloudTemplateProvider = new CloudTemplateProviderImpl();
+        this.cloudInstanceProvider = new CloudInstanceProviderIpl();
 
         this.nettyClient = new NettyClient(identity, InactiveAction.RETRY, NetworkCodec.OSGAN, future -> {
             if (future.isSuccess()) {
@@ -72,6 +76,11 @@ public class CloudAPI {
             var networkConfiguration = (NetworkConfiguration) configurationClass;
             this.nettyClient.connect(networkConfiguration.nettyServerHostname(), networkConfiguration.nettyServerPort());
         }, () -> this.logger.log(Level.SEVERE, "No network configuration found."));
+
+        this.cloudGroupProvider.reloadGroups();
+        this.cloudServiceProvider.reloadServices();
+        this.cloudTemplateProvider.reloadTemplates();
+        this.cloudInstanceProvider.reloadInstances();
     }
 
     public void terminate(boolean shutdownCycle) {

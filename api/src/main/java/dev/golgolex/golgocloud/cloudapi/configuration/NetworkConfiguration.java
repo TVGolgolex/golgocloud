@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.api.configuration;
+package dev.golgolex.golgocloud.cloudapi.configuration;
 
 import dev.golgolex.golgocloud.common.configuration.ConfigurationClass;
 import dev.golgolex.quala.json.document.JsonDocument;

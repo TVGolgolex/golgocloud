@@ -143,6 +143,8 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             }
         }
 
+        Quala.sleepUninterruptedly(200);
+
         try {
             Files.deleteIfExists(configurationDirectory);
             Files.createDirectory(configurationDirectory);

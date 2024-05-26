@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.api.service;
+package dev.golgolex.golgocloud.cloudapi.service;
 
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;

@@ -1,8 +1,8 @@
 package dev.golgolex.golgocloud.plugin.paper;
 
 import com.google.common.reflect.TypeToken;
-import dev.golgolex.golgocloud.api.CloudAPI;
-import dev.golgolex.golgocloud.api.configuration.NetworkConfiguration;
+import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.cloudapi.configuration.NetworkConfiguration;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.quala.json.document.JsonDocument;
@@ -11,29 +11,36 @@ import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.UUID;
 
 @Getter
 public class CloudPaperPlugin extends JavaPlugin {
 
     @Getter
     private static CloudPaperPlugin instance;
-    private ConfigurationService configurationService;
+    private ConfigurationService localConfigurationService;
+    private ConfigurationService instanceConfigurationService;
+    private UUID thisServiceUUID;
+    private String thisServiceId;
 
     @Override
     public void onLoad() {
         instance = this;
 
-        this.configurationService = new ConfigurationService(new File("./", ".cloud-configuration"));
-        this.configurationService.addConfiguration(
-                new NetworkConfiguration(this.configurationService.configurationDirectory())
+        this.localConfigurationService = new ConfigurationService(new File("./"), ".cloud-configuration");
+        this.localConfigurationService.addConfiguration(
+                new NetworkConfiguration(this.localConfigurationService.configurationDirectory())
         );
 
-        CloudServerService cloudService = JsonDocument.fromPath(new File(this.configurationService.configurationDirectory(), "cloud-service.json").toPath()).readObject("cloudService", new TypeToken<CloudServerService>() {
+        CloudServerService cloudService = JsonDocument.fromPath(new File(this.localConfigurationService.configurationDirectory(), "cloud-service.json").toPath()).readObject("cloudService", new TypeToken<CloudServerService>() {
         }.getType());
+
+        this.thisServiceUUID = cloudService.uuid();
+        this.thisServiceId = cloudService.id();
 
         new CloudAPI(
                 new ChannelIdentity(cloudService.id(), cloudService.uuid()),
-                this.configurationService,
+                this.localConfigurationService,
                 this.getLogger()
         );
     }

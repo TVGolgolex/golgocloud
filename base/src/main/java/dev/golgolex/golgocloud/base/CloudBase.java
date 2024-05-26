@@ -2,7 +2,7 @@ package dev.golgolex.golgocloud.base;
 
 import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
-import dev.golgolex.golgocloud.base.instance.CloudInstanceService;
+import dev.golgolex.golgocloud.base.instance.CloudInstanceProviderImpl;
 import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
@@ -33,7 +33,7 @@ public final class CloudBase {
     private final ConfigurationService configurationService;
     private final NettyServer nettyServer;
     private final CloudNetworkProviderImpl networkProvider;
-    private final CloudInstanceService instanceService;
+    private final CloudInstanceProviderImpl instanceService;
     private final CloudGroupProviderImpl groupProvider;
     private final CloudServiceProviderImpl serviceProvider;
     private final CloudTemplateProviderImpl templateProvider;
@@ -65,7 +65,7 @@ public final class CloudBase {
             }
         });
         this.networkProvider = new CloudNetworkProviderImpl();
-        this.instanceService = new CloudInstanceService();
+        this.instanceService = new CloudInstanceProviderImpl();
         this.groupProvider = new CloudGroupProviderImpl();
         this.serviceProvider = new CloudServiceProviderImpl();
         this.templateProvider = new CloudTemplateProviderImpl();

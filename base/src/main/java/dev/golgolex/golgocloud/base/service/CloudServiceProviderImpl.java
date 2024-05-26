@@ -57,7 +57,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     @Override
     public void prepareService(@NotNull CloudService cloudService) {
         CloudBase.instance().groupProvider().cloudGroup(cloudService.group()).ifPresentOrElse(cloudGroup -> {
-            var instances = CloudBase.instance().instanceService().connectedCloudInstances().stream().filter(cloudInstance -> cloudGroup.instances().contains(cloudInstance.uuid())).toList();
+            var instances = CloudBase.instance().instanceService().cloudInstances().stream().filter(cloudInstance -> cloudGroup.instances().contains(cloudInstance.uuid())).toList();
 
             if (instances.isEmpty()) {
                 CloudBase.instance().logger().writeDebug("No instance for group: " + cloudGroup.name() + " connected.");

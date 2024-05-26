@@ -13,7 +13,7 @@ import java.util.logging.Level;
 @AllArgsConstructor
 public final class InstanceEventHandler {
 
-    private final CloudInstanceService instanceService;
+    private final CloudInstanceProviderImpl instanceService;
 
     @EventTarget
     public void onClientConnect(ServerChannelAuthorizieEvent event) {
@@ -30,7 +30,7 @@ public final class InstanceEventHandler {
 
     @EventTarget
     public void onClientShutdown(ServerChannelInactiveEvent event) {
-        this.instanceService.connectedCloudInstances().stream().filter(cloudInstance -> cloudInstance.uuid().equals(event.networkChannel().channelIdentity().uniqueId()))
+        this.instanceService.cloudInstances().stream().filter(cloudInstance -> cloudInstance.uuid().equals(event.networkChannel().channelIdentity().uniqueId()))
                 .findFirst()
                 .ifPresentOrElse(this.instanceService::disconnect,
                         () -> CloudBase.instance().logger().log(Level.WARNING, "A Netty connection was cancelled although it was not connected. (" + event.networkChannel().toString() + ")"));

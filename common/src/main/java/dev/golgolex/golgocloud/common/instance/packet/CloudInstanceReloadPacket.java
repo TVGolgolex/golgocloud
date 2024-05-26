@@ -3,12 +3,12 @@ package dev.golgolex.golgocloud.common.instance.packet;
 import dev.golgolex.quala.netty5.protocol.Packet;
 import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
 
-public final class InstanceReloadPacket extends Packet {
+public final class CloudInstanceReloadPacket extends Packet {
 
-    public InstanceReloadPacket() {
+    public CloudInstanceReloadPacket() {
     }
 
-    public InstanceReloadPacket(CodecBuffer buffer) {
+    public CloudInstanceReloadPacket(CodecBuffer buffer) {
         super(buffer);
     }
 }

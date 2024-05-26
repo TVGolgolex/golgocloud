@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.api.group;
+package dev.golgolex.golgocloud.cloudapi.group;
 
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;

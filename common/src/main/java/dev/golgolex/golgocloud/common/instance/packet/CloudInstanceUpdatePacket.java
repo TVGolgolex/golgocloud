@@ -8,14 +8,14 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
-public final class InstanceUpdatePacket extends Packet {
+public final class CloudInstanceUpdatePacket extends Packet {
 
     private final CloudInstance cloudInstance;
 
     /**
      * Represents a packet used to update an instance of CloudInstance.
      */
-    public InstanceUpdatePacket(CloudInstance cloudInstance) {
+    public CloudInstanceUpdatePacket(CloudInstance cloudInstance) {
         this.cloudInstance = cloudInstance;
         buffer.writeNullable(this.cloudInstance, this.cloudInstance::writeBuffer);
     }
@@ -27,7 +27,7 @@ public final class InstanceUpdatePacket extends Packet {
      *
      * @see Packet
      */
-    public InstanceUpdatePacket(CodecBuffer buffer) {
+    public CloudInstanceUpdatePacket(CodecBuffer buffer) {
         super(buffer);
         this.cloudInstance = buffer.readNullable(CloudInstance.class, () -> {
             var instance = new CloudInstance();
