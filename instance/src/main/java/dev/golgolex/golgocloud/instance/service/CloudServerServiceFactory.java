@@ -136,7 +136,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         try {
             this.process = Runtime.getRuntime().exec(commandBuilder.toString().split(" "), null, dir);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println(e.getMessage());
         }
         CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceStartedPacket(this.cloudService));
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
