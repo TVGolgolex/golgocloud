@@ -1,6 +1,7 @@
 package dev.golgolex.golgocloud.cloudapi.instance;
 
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.instance.CloudInstance;
 import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesReplyPacket;
@@ -11,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Getter
 @Accessors(fluent = true)
@@ -20,9 +23,14 @@ public class CloudInstanceProviderIpl implements CloudInstanceProvider {
 
     @Override
     public void reloadInstances() {
-        cloudInstances.clear();
+        this.cloudInstances.clear();
         CloudInstancesReplyPacket replyPacket = CloudAPI.instance().nettyClient().thisNetworkChannel().sendQuery(new CloudInstancesRequestPacket());
-        cloudInstances.addAll(replyPacket.cloudInstance());
+        this.cloudInstances.addAll(replyPacket.cloudInstance());
+        if (!this.cloudInstances.isEmpty()) {
+            CloudAPI.instance().logger().log(Level.INFO, "Loaded following instances: " + this.cloudInstances.stream()
+                    .map(CloudInstance::id)
+                    .collect(Collectors.joining(", ")));
+        }
     }
 
     @Override
