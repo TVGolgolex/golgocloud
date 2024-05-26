@@ -25,22 +25,20 @@ public final class CloudServiceWorkerThread implements Runnable {
             var services = cloudBase.serviceProvider().runningAndWaiting(cloudGroup.name());
 
             if (cloudGroup.maximalServiceCount() < services.size() && cloudGroup.maximalServiceCount() != -1) {
-                System.out.println("1");
-                return;
+                CloudBase.instance().logger().writeDebug("Maximal service count reached for group: " + cloudGroup.name());
+                continue;
             }
-
             if (cloudGroup.minimalServiceCount() <= services.size()) {
-                System.out.println("2");
-                return;
+                CloudBase.instance().logger().writeDebug("Minimal service count reached for group: " + cloudGroup.name());
+                continue;
             }
 
             var prepare = this.cloudBase.serviceProvider().constructService(cloudGroup);
             if (prepare == null) {
                 CloudBase.instance().logger().log(Level.SEVERE, "Cannot prepare service for group: " + cloudGroup.name());
-                return;
+                continue;
             }
             this.cloudBase.serviceProvider().prepareService(prepare);
-            System.out.println("3");
         }
     }
 }
