@@ -3,9 +3,7 @@ package dev.golgolex.golgocloud.cloudapi.service;
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
-import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
-import dev.golgolex.golgocloud.common.service.packets.CloudServicesReplyPacket;
-import dev.golgolex.golgocloud.common.service.packets.CloudServicesRequestPacket;
+import dev.golgolex.golgocloud.common.service.packets.*;
 import dev.golgolex.golgocloud.common.template.CloudServiceTemplate;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -41,11 +39,11 @@ public class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void shutdownService(@NotNull CloudService cloudService) {
-
+        CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceShutdownPacket(cloudService));
     }
 
     @Override
     public void prepareService(@NotNull CloudService cloudService) {
-
+        CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServicePreparePacket(cloudService));
     }
 }
