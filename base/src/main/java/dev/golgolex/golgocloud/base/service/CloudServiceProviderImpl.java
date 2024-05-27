@@ -127,7 +127,6 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         100,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "",
                         ServerState.NORMAL
                 );
             }
