@@ -6,6 +6,7 @@ import dev.golgolex.golgocloud.common.instance.CloudInstance;
 import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesReplyPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesRequestPacket;
+import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
