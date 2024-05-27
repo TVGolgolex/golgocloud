@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.instance.service.packet;
+package dev.golgolex.golgocloud.instance.service.packets;
 
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;

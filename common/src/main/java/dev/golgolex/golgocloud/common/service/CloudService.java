@@ -28,6 +28,9 @@ public abstract class CloudService implements BufferClass {
     private UUID uuid;
     private String gameId;
     private ServiceEnvironment environment;
+    @ApiStatus.Internal
+    @Setter
+    private ServiceLifeCycle lifeCycle;
 
     private String group;
     @ApiStatus.Internal
@@ -56,14 +59,18 @@ public abstract class CloudService implements BufferClass {
         codecBuffer.writeUniqueId(uuid);
         codecBuffer.writeString(gameId);
         codecBuffer.writeEnum(environment);
+        codecBuffer.writeEnum(lifeCycle);
+
         codecBuffer.writeString(group);
         codecBuffer.writeUniqueId(instance);
         codecBuffer.writeString(template);
         codecBuffer.writeString(path);
+
         codecBuffer.writeString(host);
         codecBuffer.writeInt(port);
         codecBuffer.writeBoolean(ready);
         codecBuffer.writeLong(memory);
+
         codecBuffer.writeInt(maxPlayers);
         codecBuffer.writeList(online, (it, servicePlayer) -> servicePlayer.writeBuffer(it));
         codecBuffer.writeList(connected, (it, servicePlayer) -> servicePlayer.writeBuffer(it));
@@ -77,14 +84,18 @@ public abstract class CloudService implements BufferClass {
         uuid = codecBuffer.readUniqueId();
         gameId = codecBuffer.readString();
         environment = codecBuffer.readEnum(ServiceEnvironment.class);
+        lifeCycle = codecBuffer.readEnum(ServiceLifeCycle.class);
+
         group = codecBuffer.readString();
         instance = codecBuffer.readUniqueId();
         template = codecBuffer.readString();
         path = codecBuffer.readString();
+
         host = codecBuffer.readString();
         port = codecBuffer.readInt();
         ready = codecBuffer.readBoolean();
         memory = codecBuffer.readLong();
+
         maxPlayers = codecBuffer.readInt();
         online = codecBuffer.readList(new ArrayList<>(), () -> {
             ServicePlayer servicePlayer = new ServicePlayer();

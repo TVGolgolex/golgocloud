@@ -9,8 +9,8 @@ import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket
 import dev.golgolex.golgocloud.instance.network.packet.InstanceAuthReplyReceiver;
 import dev.golgolex.golgocloud.instance.network.packet.InstanceReloadPacketReceiver;
 import dev.golgolex.golgocloud.instance.network.packet.InstanceUpdatePacketReceiver;
-import dev.golgolex.golgocloud.instance.service.packet.CloudServicePreparePacketReceiver;
-import dev.golgolex.golgocloud.instance.service.packet.CloudServiceShutdownPacketReceiver;
+import dev.golgolex.golgocloud.instance.service.packets.CloudServicePreparePacketReceiver;
+import dev.golgolex.golgocloud.instance.service.packets.CloudServiceShutdownPacketReceiver;
 import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiverManager;
 import org.jetbrains.annotations.NotNull;
 

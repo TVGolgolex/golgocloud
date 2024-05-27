@@ -4,6 +4,8 @@ import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
+import dev.golgolex.golgocloud.common.service.ServerState;
+import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
 import dev.golgolex.golgocloud.common.service.environment.CloudProxyService;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.common.service.packets.CloudServicePreparePacket;
@@ -113,6 +115,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         UUID.randomUUID(),
                         "#" + StringUtils.generateRandomString(12),
                         cloudGroup.serviceEnvironment(),
+                        ServiceLifeCycle.PREPARED,
                         cloudGroup.name(),
                         null,
                         template.id(),
@@ -123,7 +126,9 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         (cloudGroup.memory() < 0 ? 512 : cloudGroup.memory()),
                         100,
                         new ArrayList<>(),
-                        new ArrayList<>()
+                        new ArrayList<>(),
+                        "",
+                        ServerState.NORMAL
                 );
             }
             case PROXY -> {
@@ -133,6 +138,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                         UUID.randomUUID(),
                         "#" + StringUtils.generateRandomString(12),
                         cloudGroup.serviceEnvironment(),
+                        ServiceLifeCycle.PREPARED,
                         cloudGroup.name(),
                         null,
                         template.id(),
