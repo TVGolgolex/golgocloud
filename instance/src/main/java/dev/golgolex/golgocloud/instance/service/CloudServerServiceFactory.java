@@ -1,6 +1,7 @@
 package dev.golgolex.golgocloud.instance.service;
 
 import dev.golgolex.golgocloud.common.FileHelper;
+import dev.golgolex.golgocloud.common.SyncMode;
 import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.service.CloudServiceFactory;
 import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
@@ -137,6 +138,10 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
     }
 
+    /**
+     * Configures the cloud file system for the server.
+     * This method checks if certain files exist in the specified directory, and if they don't, it inserts them.
+     * The method is responsible for setting up the*/
     public void cloudFileConfiguration() {
         var configurationDirectory = Paths.get(this.dir + "/.cloud-configuration");
         if (Files.exists(configurationDirectory)) {
@@ -159,7 +164,10 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
             networkConfiguration.configuration().saveAsConfig(new File(configurationDirectory.toFile(), networkConfiguration.id() + ".json").toPath());
         });
 
-        new JsonDocument().write("cloudService", cloudService).saveAsConfig(new File(configurationDirectory.toFile(), "cloud-service.json").toPath());
+        new JsonDocument()
+                .write("cloudService", cloudService)
+                .write("cloud-player-handling", SyncMode.SERVER_TO_SERVER.name())
+                .saveAsConfig(new File(configurationDirectory.toFile(), "cloud-service.json").toPath());
     }
 
     /**
