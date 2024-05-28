@@ -15,11 +15,9 @@ public class CloudPaperPlayerLoginListener implements Listener {
 
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event) {
-
-        if (event.getPlayer().isTransferred()) {
-
+        if (cloudPaperPlugin.playerConnectionHandler() != null) {
+            cloudPaperPlugin.playerConnectionHandler().login(event, event.getPlayer());
         }
-
     }
 
 }

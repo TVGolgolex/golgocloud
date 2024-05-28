@@ -2,10 +2,10 @@ package dev.golgolex.golgocloud.plugin.connection;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface PlayerConnectionHandler<T> {
+public interface PlayerConnectionHandler<E, E2, T> {
 
-    void login(@NotNull T player);
+    void login(@NotNull E event, @NotNull T player, Object... sub);
 
-    void logout(@NotNull T player);
+    void logout(@NotNull E2 event, @NotNull T player, Object... sub);
 
 }
