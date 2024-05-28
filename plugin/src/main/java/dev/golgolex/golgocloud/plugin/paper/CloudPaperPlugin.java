@@ -7,7 +7,7 @@ import dev.golgolex.golgocloud.common.SyncMode;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
-import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnection;
+import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnectionHandler;
 import dev.golgolex.quala.json.document.JsonDocument;
 import dev.golgolex.quala.netty5.ChannelIdentity;
 import lombok.Getter;
@@ -15,8 +15,6 @@ import lombok.experimental.Accessors;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.lang.management.OperatingSystemMXBean;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -32,7 +30,7 @@ public class CloudPaperPlugin extends JavaPlugin {
     private UUID thisServiceUUID;
     private String thisServiceId;
     private String thisGroupName;
-    private ServerToServerConnection playerConnectionHandler;
+    private ServerToServerConnectionHandler playerConnectionHandler;
 
     @Override
     public void onLoad() {
@@ -51,7 +49,7 @@ public class CloudPaperPlugin extends JavaPlugin {
         this.thisServiceId = cloudService.id();
         this.thisGroupName = cloudService.group();
         this.playerConnectionHandler = switch (syncMode) {
-            case SERVER_TO_SERVER -> new ServerToServerConnection();
+            case SERVER_TO_SERVER -> new ServerToServerConnectionHandler();
             case PROXY -> null;
         };
 
