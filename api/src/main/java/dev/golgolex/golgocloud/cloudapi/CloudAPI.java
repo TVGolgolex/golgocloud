@@ -6,12 +6,14 @@ import dev.golgolex.golgocloud.cloudapi.instance.CloudInstanceProviderIpl;
 import dev.golgolex.golgocloud.cloudapi.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.template.CloudTemplateProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.user.CloudPlayerProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;
 import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
+import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
 import dev.golgolex.quala.netty5.ChannelIdentity;
 import dev.golgolex.quala.netty5.InactiveAction;
 import dev.golgolex.quala.netty5.NetworkCodec;
@@ -42,6 +44,7 @@ public class CloudAPI {
     private final CloudServiceProvider cloudServiceProvider;
     private final CloudTemplateProvider cloudTemplateProvider;
     private final CloudInstanceProvider cloudInstanceProvider;
+    private final CloudPlayerProvider cloudPlayerProvider;
     private final NettyClient nettyClient;
 
     /**
@@ -58,6 +61,7 @@ public class CloudAPI {
         this.cloudServiceProvider = new CloudServiceProviderImpl();
         this.cloudTemplateProvider = new CloudTemplateProviderImpl();
         this.cloudInstanceProvider = new CloudInstanceProviderIpl();
+        this.cloudPlayerProvider = new CloudPlayerProviderImpl();
 
         this.nettyClient = new NettyClient(identity, InactiveAction.RETRY, NetworkCodec.OSGAN, future -> {
             if (future.isSuccess()) {
@@ -81,6 +85,7 @@ public class CloudAPI {
         this.cloudServiceProvider.reloadServices();
         this.cloudTemplateProvider.reloadTemplates();
         this.cloudInstanceProvider.reloadInstances();
+        this.cloudPlayerProvider.reloadPlayers();
     }
 
     public void terminate(boolean shutdownCycle) {
