@@ -70,4 +70,18 @@ public interface CloudPlayerProvider {
     default List<CloudPlayer> offlineCloudPlayers() {
         return this.cloudPlayers().stream().filter(cloudPlayer -> !cloudPlayer.isOnline()).toList();
     }
+
+    /**
+     * Creates a CloudPlayer object and adds it to the cloud player provider.
+     *
+     * @param cloudPlayer The CloudPlayer object to be created and added.
+     */
+    void createCloudPlayer(@NotNull CloudPlayer cloudPlayer);
+
+    /**
+     * Updates the CloudPlayer information in the cloud player provider.
+     *
+     * @param cloudPlayer The CloudPlayer object to be updated.
+     */
+    void updateCloudPlayer(@NotNull CloudPlayer cloudPlayer);
 }

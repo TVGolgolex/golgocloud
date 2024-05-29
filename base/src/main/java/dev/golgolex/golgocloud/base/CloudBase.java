@@ -7,6 +7,7 @@ import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.base.template.CloudTemplateProviderImpl;
+import dev.golgolex.golgocloud.base.user.CloudPlayerProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.logger.Logger;
@@ -37,6 +38,7 @@ public final class CloudBase {
     private final CloudGroupProviderImpl groupProvider;
     private final CloudServiceProviderImpl serviceProvider;
     private final CloudTemplateProviderImpl templateProvider;
+    private final CloudPlayerProviderImpl playerProvider;
     private final Scheduler scheduler = new Scheduler(50);
 
     public CloudBase() throws IOException, NoSuchFieldException, IllegalAccessException {
@@ -69,6 +71,7 @@ public final class CloudBase {
         this.groupProvider = new CloudGroupProviderImpl();
         this.serviceProvider = new CloudServiceProviderImpl();
         this.templateProvider = new CloudTemplateProviderImpl();
+        this.playerProvider = new CloudPlayerProviderImpl(this.baseDirectory);
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
@@ -121,6 +124,8 @@ public final class CloudBase {
         }, () -> this.logger.log(Level.SEVERE, "No base configuration found."));
 
         this.groupProvider.reloadGroups();
+        this.templateProvider.reloadTemplates();
+        this.playerProvider.reloadPlayers();
 
         var schedulerThread = new Thread(this.scheduler);
         schedulerThread.setDaemon(true);
@@ -134,6 +139,8 @@ public final class CloudBase {
             configuration.reload();
         }
         this.groupProvider.reloadGroups();
+        this.templateProvider.reloadTemplates();
+        this.playerProvider.reloadPlayers();
     }
 
     public void shutdown(boolean shutdownCycle) {

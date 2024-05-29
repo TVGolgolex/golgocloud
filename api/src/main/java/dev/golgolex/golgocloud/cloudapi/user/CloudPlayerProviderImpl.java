@@ -1,7 +1,9 @@
 package dev.golgolex.golgocloud.cloudapi.user;
 
+import dev.golgolex.golgocloud.cloudapi.CloudAPI;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -29,5 +31,10 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     @Override
     public CloudPlayer cloudPlayer(@NotNull String name) {
         return cloudPlayers.stream().filter(cloudPlayer -> cloudPlayer.username().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
+
+    @Override
+    public void createCloudPlayer(@NotNull CloudPlayer cloudPlayer) {
+        CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerCreatePacket(cloudPlayer));
     }
 }

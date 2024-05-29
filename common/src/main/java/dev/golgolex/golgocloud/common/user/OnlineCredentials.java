@@ -23,6 +23,7 @@ public class OnlineCredentials implements BufferClass {
     private String currentServer;
     private String lastServer;
     private List<String> connectedServers;
+    private String currentProxy;
 
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
@@ -30,6 +31,10 @@ public class OnlineCredentials implements BufferClass {
         codecBuffer.writeString(this.currentServer);
         codecBuffer.writeString(this.lastServer);
         codecBuffer.writeStringList(this.connectedServers);
+        codecBuffer.writeBoolean(this.currentProxy != null);
+        if (this.currentProxy != null) {
+            codecBuffer.writeString(this.currentProxy);
+        }
     }
 
     @Override
@@ -38,5 +43,6 @@ public class OnlineCredentials implements BufferClass {
         this.currentServer = codecBuffer.readString();
         this.lastServer = codecBuffer.readString();
         this.connectedServers = codecBuffer.readStringList(new ArrayList<>());
+        this.currentProxy = codecBuffer.readBoolean() ? codecBuffer.readString() : null;
     }
 }
