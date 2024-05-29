@@ -67,9 +67,7 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                 CloudAPI.instance().cloudPlayerProvider().createCloudPlayer(cloudPlayer);
             }
             CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerLoginPacket(cloudPlayer));
-
         }, () -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cNo server group could be found§8. §cIncorrect loading could be the cause§8.")));
-
     }
 
     @Override
