@@ -1,5 +1,6 @@
 package dev.golgolex.golgocloud.common.user;
 
+import dev.golgolex.golgocloud.common.CacheHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.UUID;
  * Implementations of this interface provide methods to retrieve CloudPlayer objects
  * based on unique identifiers or names.
  */
-public interface CloudPlayerProvider {
+public interface CloudPlayerProvider extends CacheHandler<CloudPlayer> {
 
     List<CloudPlayer> cloudPlayers();
 
@@ -84,4 +85,5 @@ public interface CloudPlayerProvider {
      * @param cloudPlayer The CloudPlayer object to be updated.
      */
     void updateCloudPlayer(@NotNull CloudPlayer cloudPlayer);
+
 }

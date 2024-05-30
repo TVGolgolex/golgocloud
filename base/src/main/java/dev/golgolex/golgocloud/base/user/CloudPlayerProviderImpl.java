@@ -1,8 +1,10 @@
 package dev.golgolex.golgocloud.base.user;
 
 import com.google.common.reflect.TypeToken;
+import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.quala.json.document.JsonDocument;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)
@@ -74,6 +77,22 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     }
 
     public void handleLogin(@NotNull CloudPlayer cloudPlayer) {
+        CloudBase.instance().logger().log(Level.INFO, "Player '" + cloudPlayer.names() + "' connected to " + cloudPlayer.onlineCredentials().currentServer() + "'");
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLoginPacket(cloudPlayer), null);
+    }
+
+    @Override
+    public void updateCached(@NotNull CloudPlayer element) {
+
+    }
+
+    @Override
+    public void putCache(@NotNull CloudPlayer element) {
+
+    }
+
+    @Override
+    public void unCache(@NotNull CloudPlayer element) {
 
     }
 }

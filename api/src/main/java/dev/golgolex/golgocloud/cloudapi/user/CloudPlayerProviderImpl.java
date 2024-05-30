@@ -3,7 +3,10 @@ package dev.golgolex.golgocloud.cloudapi.user;
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
+import dev.golgolex.golgocloud.common.user.events.CloudPlayerUpdateEvent;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
+import dev.golgolex.quala.event.EventRegistry;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -36,5 +39,27 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     @Override
     public void createCloudPlayer(@NotNull CloudPlayer cloudPlayer) {
         CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerCreatePacket(cloudPlayer));
+    }
+
+    @Override
+    public void updateCloudPlayer(@NotNull CloudPlayer cloudPlayer) {
+        CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerUpdatePacket(cloudPlayer));
+    }
+
+    @Override
+    public void updateCached(@NotNull CloudPlayer element) {
+        EventRegistry.registerListener(new CloudPlayerUpdateEvent(element));
+        this.cloudPlayers.removeIf(it -> it.uniqueId().equals(element.uniqueId()));
+        this.cloudPlayers.add(element);
+    }
+
+    @Override
+    public void putCache(@NotNull CloudPlayer element) {
+        this.cloudPlayers.add(element);
+    }
+
+    @Override
+    public void unCache(@NotNull CloudPlayer element) {
+        this.cloudPlayers.removeIf(it -> it.uniqueId().equals(element.uniqueId()));
     }
 }
