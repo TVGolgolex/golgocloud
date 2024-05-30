@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.instance.version;
+package dev.golgolex.golgocloud.instance.service.version;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;

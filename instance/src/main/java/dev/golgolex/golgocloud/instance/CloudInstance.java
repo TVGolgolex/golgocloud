@@ -13,7 +13,7 @@ import dev.golgolex.golgocloud.instance.service.CloudServiceProcessQueue;
 import dev.golgolex.golgocloud.instance.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.instance.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
-import dev.golgolex.golgocloud.instance.version.CloudServiceVersionProvider;
+import dev.golgolex.golgocloud.instance.service.version.CloudServiceVersionProvider;
 import dev.golgolex.golgocloud.logger.Logger;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.netty5.ChannelIdentity;
