@@ -76,6 +76,7 @@ public class CloudPaperPlugin extends JavaPlugin {
         this.instanceConfigurationService = new ConfigurationService(new File(cloudInstance.path()));
 
         cloudService.lifeCycle(ServiceLifeCycle.READY);
+        cloudService.ready(true);
         CloudAPI.instance().cloudServiceProvider().updateService(cloudService);
 
         Bukkit.getPluginManager().registerEvents(new CloudPaperAsyncPlayerPreLoginListener(CloudAPI.instance(), this), this);
