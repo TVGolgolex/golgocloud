@@ -62,7 +62,8 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                         new ArrayList<>(),
                         "",
                         "",
-                        credentials
+                        credentials,
+                        false
                 );
                 CloudAPI.instance().cloudPlayerProvider().createCloudPlayer(cloudPlayer);
             }

@@ -9,6 +9,7 @@ import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.base.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.base.user.CloudPlayerProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
+import dev.golgolex.golgocloud.base.configuration.DatabaseConfiguration;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.logger.Logger;
 import dev.golgolex.quala.netty5.InactiveAction;
@@ -78,7 +79,8 @@ public final class CloudBase {
                 new NetworkConfiguration(this.configurationService.configurationDirectory()),
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
                 new GroupsConfiguration(this.configurationService.configurationDirectory()),
-                new TemplateConfiguration(this.configurationService.configurationDirectory())
+                new TemplateConfiguration(this.configurationService.configurationDirectory()),
+                new DatabaseConfiguration(this.configurationService.configurationDirectory())
         );
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 

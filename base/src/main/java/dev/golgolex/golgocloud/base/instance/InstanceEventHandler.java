@@ -18,6 +18,11 @@ public final class InstanceEventHandler {
     @EventTarget
     public void onClientConnect(ServerChannelAuthorizieEvent event) {
         var clientAddress = ((InetSocketAddress) event.ctx().channel().remoteAddress()).getAddress().getHostAddress();
+
+        if (CloudBase.instance().serviceProvider().cloudService(event.networkChannel().channelIdentity().namespace()).isPresent()) {
+            return;
+        }
+
         CloudBase.instance().configurationService().configurationOptional("instance").ifPresentOrElse(configurationClass -> {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
             instanceConfiguration.ipWhitelist().stream().filter(s -> s.equalsIgnoreCase(clientAddress)).findFirst()

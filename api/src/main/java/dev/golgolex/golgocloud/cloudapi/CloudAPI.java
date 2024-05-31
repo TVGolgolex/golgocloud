@@ -1,5 +1,7 @@
 package dev.golgolex.golgocloud.cloudapi;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import dev.golgolex.golgocloud.cloudapi.configuration.NetworkConfiguration;
 import dev.golgolex.golgocloud.cloudapi.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.instance.CloudInstanceProviderIpl;
@@ -8,18 +10,25 @@ import dev.golgolex.golgocloud.cloudapi.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.user.CloudPlayerProviderImpl;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
+import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationReplyPacket;
+import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationRequestPacket;
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;
 import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
+import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.mongo.MongoConnectionUtil;
 import dev.golgolex.quala.netty5.ChannelIdentity;
 import dev.golgolex.quala.netty5.InactiveAction;
 import dev.golgolex.quala.netty5.NetworkCodec;
 import dev.golgolex.quala.netty5.client.NettyClient;
+import dev.golgolex.quala.translation.DefaultTranslationAPI;
+import dev.golgolex.quala.translation.TranslationAPI;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.bson.Document;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +55,9 @@ public class CloudAPI {
     private final CloudInstanceProvider cloudInstanceProvider;
     private final CloudPlayerProvider cloudPlayerProvider;
     private final NettyClient nettyClient;
+    @ApiStatus.Internal
+    private MongoDatabase mongoDatabase;
+    private TranslationAPI translationAPI;
 
     /**
      * The CloudAPI class is the entry point for interacting with the cloud system.
@@ -86,6 +98,23 @@ public class CloudAPI {
         this.cloudTemplateProvider.reloadTemplates();
         this.cloudInstanceProvider.reloadInstances();
         this.cloudPlayerProvider.reloadPlayers();
+
+        CloudConfigurationReplyPacket replyPacket = this.nettyClient.thisNetworkChannel().sendQuery(new CloudConfigurationRequestPacket("database"));
+
+        var mongoConfiguration = replyPacket.configuration().readJsonDocument("mongodb");
+        var collectionsConfiguration = mongoConfiguration.readJsonDocument("collections");
+
+        this.mongoDatabase = MongoConnectionUtil.open("cloud-root",
+                mongoConfiguration.readString("user"),
+                mongoConfiguration.readString("password"),
+                mongoConfiguration.readString("host"),
+                mongoConfiguration.readInteger("port"),
+                mongoConfiguration.readString("database"),
+                mongoConfiguration.readString("userDatabaseName"));
+
+        if (mongoDatabase != null) {
+            this.translationAPI = new DefaultTranslationAPI(this.mongoDatabase.getCollection(collectionsConfiguration.readString("translation")));
+        }
     }
 
     public void terminate(boolean shutdownCycle) {

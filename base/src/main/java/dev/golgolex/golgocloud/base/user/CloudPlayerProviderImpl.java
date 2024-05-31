@@ -5,6 +5,8 @@ import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
 import dev.golgolex.quala.json.document.JsonDocument;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -13,10 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 @Getter
@@ -25,6 +25,7 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     private final File databaseDirectory;
     private final List<CloudPlayer> cloudPlayers = new ArrayList<>();
+    private final Map<UUID, Long> disconnected = new ConcurrentHashMap<>();
 
     public CloudPlayerProviderImpl(File baseDirectory) {
         this.databaseDirectory = new File(baseDirectory, "/local/database/cloud-players");
@@ -35,6 +36,12 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
                 throw new RuntimeException(e);
             }
         }
+
+        CloudBase.instance().scheduler().runTaskRepeatSync(() -> disconnected.forEach((uuid, aLong) -> {
+            if ((aLong + 3000) < System.currentTimeMillis()) {
+                this.handleLogout(cloudPlayer(uuid));
+            }
+        }), 0, 50);
     }
 
     @Override
@@ -55,12 +62,12 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     @Override
     public CloudPlayer cloudPlayer(@NotNull UUID uniqueId) {
-        return null;
+        return this.cloudPlayers.stream().filter(cloudPlayer -> cloudPlayer.uniqueId().equals(uniqueId)).findFirst().orElse(null);
     }
 
     @Override
     public CloudPlayer cloudPlayer(@NotNull String name) {
-        return null;
+        return this.cloudPlayers.stream().filter(cloudPlayer -> cloudPlayer.username().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -79,6 +86,13 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     public void handleLogin(@NotNull CloudPlayer cloudPlayer) {
         CloudBase.instance().logger().log(Level.INFO, "Player '" + cloudPlayer.names() + "' connected to " + cloudPlayer.onlineCredentials().currentServer() + "'");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLoginPacket(cloudPlayer), null);
+    }
+
+    public void handleLogout(@NotNull CloudPlayer cloudPlayer) {
+        CloudBase.instance().logger().log(Level.INFO, "Player '" + cloudPlayer.names() + "' disconnected from " + cloudPlayer.onlineCredentials().currentServer() + "'");
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLogoutPacket(cloudPlayer, CloudBase.instance().serviceProvider().cloudService(cloudPlayer.onlineCredentials().currentServer()).orElse(null)), null);
+        cloudPlayer.onlineCredentials(null);
+        this.updateCloudPlayer(cloudPlayer);
     }
 
     @Override

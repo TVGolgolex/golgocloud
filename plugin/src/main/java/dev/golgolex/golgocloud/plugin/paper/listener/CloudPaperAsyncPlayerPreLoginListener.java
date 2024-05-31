@@ -41,8 +41,6 @@ public class CloudPaperAsyncPlayerPreLoginListener implements Listener {
             }
         }, () -> event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("§cNo service could be found§8. §cIncorrect loading could be the cause§8.")));
 
-        Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equalsIgnoreCase(event.getName())).findFirst().ifPresent(player -> {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("§cYou are already logged in§8."));
-        });
+        Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equalsIgnoreCase(event.getName())).findFirst().ifPresent(player -> event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("§cYou are already logged in§8.")));
     }
 }

@@ -6,7 +6,9 @@ import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
@@ -36,7 +38,12 @@ public class CloudPlayer implements BufferClass {
     private String language;
     private String branding;
 
+    @ApiStatus.Internal
+    @Setter
     private OnlineCredentials onlineCredentials;
+    @ApiStatus.Internal
+    @Setter
+    private boolean waitingForTransfer;
 
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
@@ -52,6 +59,7 @@ public class CloudPlayer implements BufferClass {
         codecBuffer.writeString(this.language);
         codecBuffer.writeString(this.branding);
         codecBuffer.writeNullable(this.onlineCredentials, it -> this.onlineCredentials.writeBuffer(it));
+        codecBuffer.writeBoolean(this.waitingForTransfer);
     }
 
     @Override
@@ -72,6 +80,7 @@ public class CloudPlayer implements BufferClass {
             credentials.readBuffer(codecBuffer);
             return credentials;
         });
+        this.waitingForTransfer = codecBuffer.readBoolean();
     }
 
     public boolean isOnline() {

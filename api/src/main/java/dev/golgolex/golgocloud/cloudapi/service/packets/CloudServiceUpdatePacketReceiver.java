@@ -17,10 +17,11 @@ public class CloudServiceUpdatePacketReceiver extends PacketReceiver<CloudServic
     @Override
     public void receivePacket(CloudServiceUpdatePacket packet, NetworkChannel networkChannel) {
         EventRegistry.call(new CloudServiceUpdateEvent(packet.cloudService()));
-        var runningServices = new ArrayList<>(CloudAPI.instance().cloudServiceProvider().cloudServices())
+        var runningServices = new ArrayList<>(new ArrayList<>(CloudAPI.instance().cloudServiceProvider().cloudServices())
                 .stream()
                 .filter(cloudService -> !cloudService.id().equals(packet.cloudService().id()))
-                .toList();
+                .toList());
+        runningServices.add(packet.cloudService());
         CloudAPI.instance().cloudServiceProvider().cloudServices().clear();
         CloudAPI.instance().cloudServiceProvider().cloudServices().addAll(runningServices);
     }

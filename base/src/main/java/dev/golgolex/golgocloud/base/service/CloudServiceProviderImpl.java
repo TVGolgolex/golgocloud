@@ -39,6 +39,8 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void updateService(@NotNull CloudService cloudService) {
+        this.cloudServices = this.resetList(this.cloudServices, it -> it.id().equalsIgnoreCase(cloudService.id()));
+        this.cloudServices.add(cloudService);
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceUpdatePacket(cloudService), null);
     }
 

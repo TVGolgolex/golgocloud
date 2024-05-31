@@ -8,10 +8,13 @@ import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnectionHandler;
+import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperAsyncPlayerPreLoginListener;
+import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerLoginListener;
 import dev.golgolex.quala.json.document.JsonDocument;
 import dev.golgolex.quala.netty5.ChannelIdentity;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -74,6 +77,9 @@ public class CloudPaperPlugin extends JavaPlugin {
 
         cloudService.lifeCycle(ServiceLifeCycle.READY);
         CloudAPI.instance().cloudServiceProvider().updateService(cloudService);
+
+        Bukkit.getPluginManager().registerEvents(new CloudPaperAsyncPlayerPreLoginListener(CloudAPI.instance(), this), this);
+        Bukkit.getPluginManager().registerEvents(new CloudPaperPlayerLoginListener(CloudAPI.instance(), this), this);
     }
 
     @Override
