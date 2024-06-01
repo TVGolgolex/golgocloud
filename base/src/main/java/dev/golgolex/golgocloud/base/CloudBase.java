@@ -1,6 +1,7 @@
 package dev.golgolex.golgocloud.base;
 
 import dev.golgolex.golgocloud.base.commands.ReloadCommand;
+import dev.golgolex.golgocloud.base.commands.StopCommand;
 import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.base.instance.CloudInstanceProviderImpl;
@@ -107,6 +108,7 @@ public final class CloudBase {
         this.cloudTerminal.spacer();
 
         this.cloudTerminal.commandService().registerCommand(new ReloadCommand());
+        this.cloudTerminal.commandService().registerCommand(new StopCommand());
 
         this.bootstrap();
         this.cloudTerminal.start();

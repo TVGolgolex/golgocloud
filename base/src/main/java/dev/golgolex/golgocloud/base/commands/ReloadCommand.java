@@ -11,6 +11,6 @@ public class ReloadCommand {
         var started = System.currentTimeMillis();
         CloudBase.instance().logger().warn("Cloud reload has been started!");
         CloudBase.instance().reload();
-        CloudBase.instance().logger().success("Cloud reload has been finished &2(§1Took §3" + (System.currentTimeMillis() - started) + "§1ms§2)");
+        CloudBase.instance().logger().success("Cloud reload has been finished &2(&1Took &3" + (System.currentTimeMillis() - started) + " &1ms&2)");
     }
 }

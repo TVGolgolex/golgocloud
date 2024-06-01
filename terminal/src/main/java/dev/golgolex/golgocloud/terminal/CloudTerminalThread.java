@@ -13,7 +13,7 @@ public final class CloudTerminalThread extends Thread {
     public CloudTerminalThread(CloudTerminal terminal) {
         this.terminal = terminal;
         setName("console-reading-thread");
-        this.prompt = "&3cloud &2» &1";
+        this.prompt = this.terminal.includeColorCodes("&3cloud &2» &1");
         setContextClassLoader(Thread.currentThread().getContextClassLoader());
     }
 

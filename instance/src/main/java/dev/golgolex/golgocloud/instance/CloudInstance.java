@@ -5,6 +5,7 @@ import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
+import dev.golgolex.golgocloud.instance.commands.StopCommand;
 import dev.golgolex.golgocloud.instance.configuration.InstanceConfiguration;
 import dev.golgolex.golgocloud.instance.configuration.NetworkConfiguration;
 import dev.golgolex.golgocloud.instance.group.CloudGroupProviderImpl;
@@ -124,6 +125,8 @@ public class CloudInstance {
         this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User &2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
         this.cloudTerminal.spacer("    &1Instance ID&2: &3" + this.instanceId.toString());
         this.cloudTerminal.spacer();
+
+        this.cloudTerminal.commandService().registerCommand(new StopCommand());
 
         var os = System.getProperty("os.name").toLowerCase();
         this.osLinux = os.contains("nux") || os.contains("nix");
