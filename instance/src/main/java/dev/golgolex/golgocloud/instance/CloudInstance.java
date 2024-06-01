@@ -15,6 +15,10 @@ import dev.golgolex.golgocloud.instance.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.instance.service.version.CloudServiceVersionProvider;
 import dev.golgolex.golgocloud.logger.Logger;
+import dev.golgolex.golgocloud.logger.LoggerFactory;
+import dev.golgolex.golgocloud.logger.handler.FileLoggerHandler;
+import dev.golgolex.golgocloud.logger.handler.LoggerOutPutStream;
+import dev.golgolex.golgocloud.terminal.CloudTerminal;
 import dev.golgolex.quala.Quala;
 import dev.golgolex.quala.netty5.ChannelIdentity;
 import dev.golgolex.quala.netty5.InactiveAction;
@@ -27,6 +31,8 @@ import lombok.experimental.Accessors;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -37,7 +43,11 @@ public class CloudInstance {
     @Getter
     private static CloudInstance instance;
     private final File instanceDirectory;
-    private final Logger logger;
+
+    private final CloudTerminal cloudTerminal;
+    private final LoggerFactory loggerFactory = new LoggerFactory();
+    private final Logger logger = new Logger(loggerFactory, false);
+
     private final ConfigurationService configurationService;
     private final CloudNetworkProviderImpl networkProvider;
     private final CloudGroupProviderImpl groupProvider;
@@ -45,10 +55,10 @@ public class CloudInstance {
     private final CloudServiceProviderImpl serviceProvider;
     private final CloudTemplateProviderImpl templateProvider;
     private final Scheduler scheduler = new Scheduler(40);
+    private final boolean osLinux;
     private CloudServiceProcessQueue serverProcessQueue;
     private UUID instanceId;
     private NettyClient nettyClient;
-    private boolean osLinux;
     @Setter
     private dev.golgolex.golgocloud.common.instance.CloudInstance cloudInstance = null;
     private int connectionTry;
@@ -64,12 +74,17 @@ public class CloudInstance {
         }
 
         // init log directory
-        var logDirectory = new File(this.instanceDirectory, "logs");
+        /*var logDirectory = new File(this.instanceDirectory, "logs");
         if (!logDirectory.exists()) {
             boolean ignore = logDirectory.mkdirs();
-        }
+        }*/
 
-        this.logger = new Logger(logDirectory);
+        this.cloudTerminal = new CloudTerminal();
+        this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
+        System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
+        System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
+
         this.configurationService = new ConfigurationService(this.instanceDirectory);
         this.networkProvider = new CloudNetworkProviderImpl();
         this.groupProvider = new CloudGroupProviderImpl();
@@ -91,60 +106,37 @@ public class CloudInstance {
                     NetworkCodec.OSGAN,
                     future -> {
                         if (future.isSuccess()) {
-                            this.logger.log(Level.INFO, "Connection handler successfully connected.");
+                            this.logger.success("Communication handler is connected.");
                         } else {
-                            this.logger.log(Level.SEVERE, "Connection handler failed while connection.");
+                            this.logger.error("Communication handler failed to connect. ", future.cause());
                         }
                     },
                     false
             );
         }, () -> {
-            this.logger.log(Level.SEVERE, "No instance configuration found.");
+            this.logger.error("No instance configuration found.", null);
             this.nettyClient = null;
         });
         this.networkProvider.initPacketReceivers(this.nettyClient.packetReceiverManager());
 
-        this.logger.log(Level.INFO, "");
-        this.logger.log(Level.INFO, "    "
-                + ConsoleColor.WHITE.ansiCode()
-                + "GolgoCloud "
-                + ConsoleColor.DARK_GRAY
-                + "|"
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " modern network environment"
-                + " ["
-                + ConsoleColor.WHITE.ansiCode()
-                + CloudInstance.class.getPackage().getImplementationVersion()
-                + "]");
-        this.logger.log(Level.INFO, "    "
-                + "Java » "
-                + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("java.version")
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " | User » " + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("user.name")
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " | OS » " + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("os.name")
-                + ConsoleColor.DEFAULT.ansiCode());
-        this.logger.log(Level.INFO, "    "
-                + "Instance » "
-                + ConsoleColor.WHITE.ansiCode()
-                + this.instanceId
-                + ConsoleColor.DEFAULT.ansiCode());
-        this.logger.log(Level.INFO, "");
+        this.cloudTerminal.spacer();
+        this.cloudTerminal.spacer("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudInstance.class.getPackage().getImplementationVersion());
+        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User &2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.spacer("    &1Instance ID&2: &3" + this.instanceId.toString());
+        this.cloudTerminal.spacer();
 
         var os = System.getProperty("os.name").toLowerCase();
         this.osLinux = os.contains("nux") || os.contains("nix");
 
         this.bootstrap();
+        this.cloudTerminal.start();
     }
 
     public void bootstrap() {
         this.configurationService.configurationOptional("network").ifPresentOrElse(configurationClass -> {
             var networkConfiguration = (NetworkConfiguration) configurationClass;
             this.nettyClient.connect(networkConfiguration.nettyServerHostname(), networkConfiguration.nettyServerPort());
-        }, () -> this.logger.log(Level.SEVERE, "No network configuration found."));
+        }, () -> this.logger.error("No network configuration found.", null));
 
         this.configurationService.configurationOptional("instance").ifPresentOrElse(configurationClass -> {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
@@ -157,7 +149,7 @@ public class CloudInstance {
             }
 
             this.serverProcessQueue = new CloudServiceProcessQueue(instanceConfiguration.processQueueSize());
-        }, () -> this.logger.log(Level.SEVERE, "No instance configuration found."));
+        }, () -> this.logger.error("No instance configuration found.", null));
 
         while (this.cloudInstance == null) {
             if (this.connectionTry > 9) {
@@ -214,7 +206,7 @@ public class CloudInstance {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.logger.shutdownAll();
+        this.loggerFactory.close();
         if (!shutdownCycle) {
             System.exit(0);
         }

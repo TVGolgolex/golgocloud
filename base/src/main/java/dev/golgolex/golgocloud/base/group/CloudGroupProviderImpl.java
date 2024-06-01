@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
@@ -55,10 +54,10 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
                 this.createGroup(defaultGroup);
             }
 
-            CloudBase.instance().logger().log(Level.INFO, "Loaded following groups: " + this.cloudGroups.stream()
+            CloudBase.instance().logger().info("Loaded following groups: &3" + this.cloudGroups.stream()
                     .map(CloudGroup::name)
-                    .collect(Collectors.joining(", ")));
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
+                    .collect(Collectors.joining("&2, &3")));
+        }, () -> CloudBase.instance().logger().error("No groups configuration found.", null));
     }
 
     @Override
@@ -71,12 +70,12 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
             groupsConfiguration.groups(list);
             groupsConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupUpdatePacket(cloudGroup), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
+        }, () -> CloudBase.instance().logger().error("No groups configuration found.", null));
     }
 
     @Override
     public void deleteGroup(@NotNull CloudGroup cloudGroup) {
-        CloudBase.instance().logger().log(Level.INFO, "Server group " + cloudGroup.name() + " deleted.");
+        CloudBase.instance().logger().info("ServerGroup &2'&3" + cloudGroup.name() + "&2' &1deleted.");
         CloudBase.instance().configurationService().configurationOptional("groups").ifPresentOrElse(configurationClass -> {
             var groupsConfiguration = (GroupsConfiguration) configurationClass;
             var list = groupsConfiguration.groups();
@@ -84,12 +83,12 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
             groupsConfiguration.groups(list);
             groupsConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupDeletePacket(cloudGroup), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
+        }, () -> CloudBase.instance().logger().error("No groups configuration found.", null));
     }
 
     @Override
     public void createGroup(@NotNull CloudGroup cloudGroup) {
-        CloudBase.instance().logger().log(Level.INFO, "Server group " + cloudGroup.name() + " successfully created.");
+        CloudBase.instance().logger().info( "ServerGroup &2'&3" + cloudGroup.name() + "&2' &1successfully created.");
         CloudBase.instance().configurationService().configurationOptional("groups").ifPresentOrElse(configurationClass -> {
             var groupsConfiguration = (GroupsConfiguration) configurationClass;
             var list = groupsConfiguration.groups();
@@ -97,6 +96,6 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
             groupsConfiguration.groups(list);
             groupsConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudGroupCreatePacket(cloudGroup), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No groups configuration found."));
+        }, () -> CloudBase.instance().logger().error("No groups configuration found.",null));
     }
 }

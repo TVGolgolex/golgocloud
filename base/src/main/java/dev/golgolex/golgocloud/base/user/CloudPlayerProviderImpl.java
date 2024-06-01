@@ -84,12 +84,12 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     }
 
     public void handleLogin(@NotNull CloudPlayer cloudPlayer) {
-        CloudBase.instance().logger().log(Level.INFO, "Player '" + cloudPlayer.names() + "' connected to " + cloudPlayer.onlineCredentials().currentServer() + "'");
+        CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1connected to &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2'");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLoginPacket(cloudPlayer), null);
     }
 
     public void handleLogout(@NotNull CloudPlayer cloudPlayer) {
-        CloudBase.instance().logger().log(Level.INFO, "Player '" + cloudPlayer.names() + "' disconnected from " + cloudPlayer.onlineCredentials().currentServer() + "'");
+        CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1disconnected from &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2'");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLogoutPacket(cloudPlayer, CloudBase.instance().serviceProvider().cloudService(cloudPlayer.onlineCredentials().currentServer()).orElse(null)), null);
         cloudPlayer.onlineCredentials(null);
         this.updateCloudPlayer(cloudPlayer);

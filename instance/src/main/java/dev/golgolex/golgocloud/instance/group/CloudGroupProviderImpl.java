@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
@@ -25,9 +24,9 @@ public final class CloudGroupProviderImpl implements CloudGroupProvider {
         final CloudGroupsReplyPacket reply = CloudInstance.instance().nettyClient().thisNetworkChannel().sendQuery(new CloudGroupsRequestPacket());
         this.cloudGroups.addAll(reply.cloudGroups().stream().filter(cloudGroup -> cloudGroup.instances().contains(CloudInstance.instance().instanceId())).toList());
         if (!this.cloudGroups.isEmpty()) {
-            CloudInstance.instance().logger().log(Level.INFO, "Loaded following groups: " + this.cloudGroups.stream()
+            CloudInstance.instance().logger().info("Loaded following groups: &3" + this.cloudGroups.stream()
                     .map(CloudGroup::name)
-                    .collect(Collectors.joining(", ")));
+                    .collect(Collectors.joining("&2, &3")));
         }
     }
 

@@ -28,7 +28,7 @@ public class CloudTemplateProviderImpl implements CloudTemplateProvider {
         CloudBase.instance().configurationService().configurationOptional("template").ifPresentOrElse(configurationClass -> {
             var templateConfiguration = (TemplateConfiguration) configurationClass;
             cloudServiceTemplates.addAll(templateConfiguration.serviceTemplates());
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No template configuration found."));
+        }, () -> CloudBase.instance().logger().error( "No template configuration found.", null));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class CloudTemplateProviderImpl implements CloudTemplateProvider {
             templateConfiguration.serviceTemplates(list);
             templateConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceTemplateUpdatePacket(cloudServiceTemplate), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No template configuration found."));
+        }, () -> CloudBase.instance().logger().error("No template configuration found.", null));
         this.reloadTemplates();
     }
 
@@ -68,7 +68,7 @@ public class CloudTemplateProviderImpl implements CloudTemplateProvider {
             templateConfiguration.serviceTemplates(list);
             templateConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceTemplateDeletePacket(cloudServiceTemplate), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No template configuration found."));
+        }, () -> CloudBase.instance().logger().error("No template configuration found.", null));
         this.reloadTemplates();
     }
 
@@ -81,7 +81,7 @@ public class CloudTemplateProviderImpl implements CloudTemplateProvider {
             templateConfiguration.serviceTemplates(list);
             templateConfiguration.save();
             CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceTemplateCreatePacket(cloudServiceTemplate), null);
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No template configuration found."));
+        }, () -> CloudBase.instance().logger().error("No template configuration found.", null));
         this.reloadTemplates();
     }
 }

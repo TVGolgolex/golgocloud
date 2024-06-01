@@ -27,7 +27,7 @@ public final class InstanceEventHandler {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
             instanceConfiguration.ipWhitelist().stream().filter(s -> s.equalsIgnoreCase(clientAddress)).findFirst()
                     .ifPresentOrElse(s -> this.instanceService.allowConnection(clientAddress),
-                            () -> CloudBase.instance().logger().log(Level.WARNING, "A Netty connection was requested and the IP: '" + clientAddress + "' is not whitelisted."));
+                            () -> CloudBase.instance().logger().error("A Netty connection was requested and the IP: '" + clientAddress + "' is not whitelisted.", null));
         }, () -> {
             throw new IllegalStateException("Instance configuration not found");
         });
@@ -38,7 +38,7 @@ public final class InstanceEventHandler {
         this.instanceService.cloudInstances().stream().filter(cloudInstance -> cloudInstance.uuid().equals(event.networkChannel().channelIdentity().uniqueId()))
                 .findFirst()
                 .ifPresentOrElse(this.instanceService::disconnect,
-                        () -> CloudBase.instance().logger().log(Level.WARNING, "A Netty connection was cancelled although it was not connected. (" + event.networkChannel().toString() + ")"));
+                        () -> CloudBase.instance().logger().error("A Netty connection was cancelled although it was not connected. (" + event.networkChannel().toString() + ")", null));
     }
 
 }

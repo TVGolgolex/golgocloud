@@ -51,7 +51,7 @@ public final class CloudInstanceProviderImpl implements CloudInstanceProvider {
             var instanceConfiguration = (InstanceConfiguration) configurationClass;
 
             if (!instanceConfiguration.authKey().equals(packet.authKey())) {
-                CloudBase.instance().logger().log(Level.WARNING, "Instance '" + networkChannel.channelIdentity().namespace() + "' has tried to connect with an incorrect Auth-Key.");
+                CloudBase.instance().logger().warn( "Instance '" + networkChannel.channelIdentity().namespace() + "' has tried to connect with an incorrect Auth-Key.");
                 return;
             }
 
@@ -88,7 +88,7 @@ public final class CloudInstanceProviderImpl implements CloudInstanceProvider {
 
             this.cloudInstances.add(instance);
             networkChannel.sendPacket(new CloudInstanceAuthReplyPacket(instance));
-            CloudBase.instance().logger().log(Level.INFO, "Instance '" + instance.id() + "' successfully connected");
+            CloudBase.instance().logger().info( "Instance &2'&3" + instance.id() + "&2' &1successfully connected");
         }, () -> {
             throw new IllegalStateException("Instance configuration not found");
         });
@@ -101,7 +101,7 @@ public final class CloudInstanceProviderImpl implements CloudInstanceProvider {
      */
     public void disconnect(@NotNull CloudInstance cloudInstance) {
         this.cloudInstances.removeIf(it -> it.uuid().equals(cloudInstance.uuid()));
-        CloudBase.instance().logger().log(Level.INFO, "Instance '" + cloudInstance.id() + "' disconnected");
+        CloudBase.instance().logger().info( "Instance &2'&3" + cloudInstance.id() + "&2' &1disconnected");
         for (var cloudService : CloudBase.instance().serviceProvider().cloudServices().stream().filter(cloudService -> cloudService.instance().equals(cloudInstance.uuid())).toList()) {
             CloudBase.instance().serviceProvider().shutdownService(cloudService);
         }

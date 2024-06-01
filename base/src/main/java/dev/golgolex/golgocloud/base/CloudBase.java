@@ -1,5 +1,6 @@
 package dev.golgolex.golgocloud.base;
 
+import dev.golgolex.golgocloud.base.commands.ReloadCommand;
 import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.base.instance.CloudInstanceProviderImpl;
@@ -12,6 +13,10 @@ import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.base.configuration.DatabaseConfiguration;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.golgocloud.logger.Logger;
+import dev.golgolex.golgocloud.logger.LoggerFactory;
+import dev.golgolex.golgocloud.logger.handler.FileLoggerHandler;
+import dev.golgolex.golgocloud.logger.handler.LoggerOutPutStream;
+import dev.golgolex.golgocloud.terminal.CloudTerminal;
 import dev.golgolex.quala.netty5.InactiveAction;
 import dev.golgolex.quala.netty5.NetworkCodec;
 import dev.golgolex.quala.netty5.NetworkUtils;
@@ -22,6 +27,8 @@ import lombok.experimental.Accessors;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 @Getter
@@ -31,7 +38,11 @@ public final class CloudBase {
     @Getter
     private static CloudBase instance;
     private final File baseDirectory;
-    private final Logger logger;
+
+    private final CloudTerminal cloudTerminal;
+    private final LoggerFactory loggerFactory = new LoggerFactory();
+    private final Logger logger = new Logger(loggerFactory, false);
+
     private final ConfigurationService configurationService;
     private final NettyServer nettyServer;
     private final CloudNetworkProviderImpl networkProvider;
@@ -58,13 +69,19 @@ public final class CloudBase {
             boolean ignore = logDirectory.mkdirs();
         }
 
-        this.logger = new Logger(logDirectory);
+//        this.logger = new Logger(logDirectory);
+        this.cloudTerminal = new CloudTerminal();
+        this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
+        System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
+        System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
+
         this.configurationService = new ConfigurationService(this.baseDirectory);
         this.nettyServer = new NettyServer(false, InactiveAction.SHUTDOWN, NetworkCodec.OSGAN, future -> {
             if (future.isSuccess()) {
-                this.logger.log(Level.INFO, "Communication handler is connected.");
+                this.logger.success("Communication handler is connected.");
             } else {
-                this.logger.log(Level.SEVERE, "Communication handler failed to connect.", future.cause());
+                this.logger.error("Communication handler failed to connect. ", future.cause());
             }
         });
         this.networkProvider = new CloudNetworkProviderImpl();
@@ -84,46 +101,29 @@ public final class CloudBase {
         );
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 
-        this.logger.log(Level.INFO, "");
-        this.logger.log(Level.INFO, "    "
-                + ConsoleColor.WHITE.ansiCode()
-                + "GolgoCloud "
-                + ConsoleColor.DARK_GRAY
-                + "|"
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " modern network environment"
-                + " ["
-                + ConsoleColor.WHITE.ansiCode()
-                + CloudBase.class.getPackage().getImplementationVersion()
-                + "]");
-        this.logger.log(Level.INFO, "    "
-                + "Java » "
-                + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("java.version")
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " | User » " + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("user.name")
-                + ConsoleColor.DEFAULT.ansiCode()
-                + " | OS » " + ConsoleColor.WHITE.ansiCode()
-                + System.getProperty("os.name")
-                + ConsoleColor.DEFAULT.ansiCode());
-        this.logger.log(Level.INFO, "");
+        this.cloudTerminal.spacer();
+        this.cloudTerminal.spacer("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudBase.class.getPackage().getImplementationVersion());
+        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User &2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.spacer();
+
+        this.cloudTerminal.commandService().registerCommand(new ReloadCommand());
 
         this.bootstrap();
+        this.cloudTerminal.start();
     }
 
     public void bootstrap() {
         this.configurationService.configurationOptional("network").ifPresentOrElse(configurationClass -> {
             var networkConfiguration = (NetworkConfiguration) configurationClass;
             this.nettyServer.connect(networkConfiguration.nettyServerHostname(), networkConfiguration.nettyServerPort());
-        }, () -> this.logger.log(Level.SEVERE, "No network configuration found."));
+        }, () -> this.logger.warn("No network configuration found."));
 
         this.configurationService.configurationOptional("base").ifPresentOrElse(configurationClass -> {
             var baseConfiguration = (BaseConfiguration) configurationClass;
-            this.logger.setDebugging(baseConfiguration.consoleDebug());
+            this.logger.debugMode(baseConfiguration.consoleDebug());
             NetworkUtils.DEV_MODE = baseConfiguration.nettyDebug();
-            this.logger.log(Level.INFO, "Handling is based on " + ConsoleColor.DARK_GRAY.ansiCode() + "'" + ConsoleColor.AQUA.ansiCode() + baseConfiguration.cloudSyncFunction().name() + ConsoleColor.DARK_GRAY.ansiCode() + "'");
-        }, () -> this.logger.log(Level.SEVERE, "No base configuration found."));
+            this.logger.info("Handling is based on &2'&3" + baseConfiguration.cloudSyncFunction().name() + ConsoleColor.DARK_GRAY.ansiCode() + "&2'");
+        }, () -> this.logger.warn("No base configuration found."));
 
         this.groupProvider.reloadGroups();
         this.templateProvider.reloadTemplates();
@@ -151,7 +151,7 @@ public final class CloudBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.logger.shutdownAll();
+        this.loggerFactory.close();
         if (!shutdownCycle) {
             System.exit(0);
         }

@@ -5,7 +5,7 @@ import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
 import dev.golgolex.quala.netty5.channel.NetworkChannel;
 import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiver;
 
-public class CloudServiceUpdatePacketReceiver extends PacketReceiver<CloudServiceUpdatePacket> {
+public final class CloudServiceUpdatePacketReceiver extends PacketReceiver<CloudServiceUpdatePacket> {
     @Override
     public void receivePacket(CloudServiceUpdatePacket cloudServiceUpdatePacket, NetworkChannel networkChannel) {
         CloudBase.instance().serviceProvider().updateService(cloudServiceUpdatePacket.cloudService());

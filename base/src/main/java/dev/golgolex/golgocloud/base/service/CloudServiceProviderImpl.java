@@ -46,7 +46,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     @Override
     public void shutdownService(@NotNull CloudService cloudService) {
-        CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' was stopped.");
+        CloudBase.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was stopped");
         this.cloudServices = this.resetList(this.cloudServices, it -> it.id().equalsIgnoreCase(cloudService.id()));
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
     }
@@ -54,7 +54,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     public void startedService(@NotNull CloudService cloudService) {
         this.waitingService = this.resetList(this.waitingService, it -> it.id().equalsIgnoreCase(cloudService.id()));
         this.cloudServices.add(cloudService);
-        CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
+        CloudBase.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was started");
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceStartedPacket(cloudService), null);
     }
 
@@ -64,13 +64,13 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
             var instances = CloudBase.instance().instanceService().cloudInstances().stream().filter(cloudInstance -> cloudGroup.instances().contains(cloudInstance.uuid())).toList();
 
             if (instances.isEmpty()) {
-                CloudBase.instance().logger().writeDebug("No instance for group: " + cloudGroup.name() + " connected.");
+                CloudBase.instance().logger().debug("No instance for group: " + cloudGroup.name() + " connected.");
                 return;
             }
 
             var operatingInstance = instances.size() == 1 ? instances.getFirst() : instances.get(Quala.randomNumber(0, instances.size() - 1));
             if (operatingInstance == null) {
-                CloudBase.instance().logger().writeDebug("No instance id for group: " + cloudGroup.name() + " connected.");
+                CloudBase.instance().logger().debug("No instance id for group: " + cloudGroup.name() + " connected.");
                 return;
             }
 
@@ -81,8 +81,8 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
             cloudService.instance(operatingInstance.uuid());
             CloudBase.instance().nettyServer().serverChannelTransmitter().getNetworkChannel(operatingInstance.uuid()).sendPacket(new CloudServicePreparePacket(cloudService));
             this.waitingService.add(cloudService);
-            CloudBase.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' is prepared.");
-        }, () -> CloudBase.instance().logger().log(Level.SEVERE, "No Group for " + cloudService.group() + " found."));
+            CloudBase.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was prepared");
+        }, () -> CloudBase.instance().logger().error("No Group for " + cloudService.group() + " found.", null));
     }
 
     public CloudService constructService(@NotNull CloudGroup cloudGroup) {

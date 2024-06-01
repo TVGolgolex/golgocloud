@@ -28,7 +28,6 @@ import dev.golgolex.quala.translation.DefaultTranslationAPI;
 import dev.golgolex.quala.translation.TranslationAPI;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.bson.Document;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 

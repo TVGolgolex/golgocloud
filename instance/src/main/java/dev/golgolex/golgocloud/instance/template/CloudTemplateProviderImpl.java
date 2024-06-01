@@ -81,7 +81,7 @@ public final class CloudTemplateProviderImpl implements CloudTemplateProvider {
 
         var templateBase = this.cloudServiceTemplate(cloudService.template(), cloudService.group());
         if (templateBase == null) {
-            System.err.println("No template base for key: " + cloudService.template() + " found.");
+            CloudInstance.instance().logger().warn("No template base for key: " + cloudService.template() + " found.");
             return;
         }
 

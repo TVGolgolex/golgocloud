@@ -51,8 +51,8 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
 
             if (cloudPlayer == null) {
                 cloudPlayer = new CloudPlayer(
-                        player.getUniqueId(),
-                        player.getName(),
+                        event.getPlayer().getUniqueId(),
+                        event.getPlayer().getName(),
                         new JsonDocument(),
                         new Timestamp(System.currentTimeMillis()),
                         new Timestamp(System.currentTimeMillis()),
@@ -60,7 +60,7 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                         0L,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        "",
+                        CloudAPI.instance().translationAPI().defaultLanguages().getFirst().name(),
                         "",
                         credentials,
                         false

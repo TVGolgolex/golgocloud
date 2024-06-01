@@ -66,7 +66,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
 
             this.cloudService.host(Quala.hostName());
             this.cloudService.path(this.dir.getAbsolutePath());
-            CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' prepared.");
+            CloudInstance.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was prepared");
             this.start();
         }, () -> {
             System.err.println("No CloudGroup for " + cloudService.group() + " loaded.");
@@ -135,7 +135,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         }
         this.cloudService.lifeCycle(ServiceLifeCycle.EXECUTED);
         CloudInstance.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudServiceStartedPacket(this.cloudService));
-        CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' started.");
+        CloudInstance.instance().logger().success("Service &2'&3" + cloudService.id() + "&2' &1started");
     }
 
     /**
@@ -240,7 +240,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
         }
 
         CloudInstance.instance().serviceProvider().shutdownService(cloudService);
-        CloudInstance.instance().logger().log(Level.INFO, "Service '" + ConsoleColor.WHITE.ansiCode() + cloudService.id() + ConsoleColor.DEFAULT.ansiCode() + "' terminated.");
+        CloudInstance.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was terminated");
     }
 
     @Override
@@ -258,7 +258,7 @@ public final class CloudServerServiceFactory implements CloudServiceFactory<Clou
 
     public void runCommand(@NotNull String commandLine) {
         if (process == null || !isAlive()) {
-            CloudInstance.instance().logger().log(Level.SEVERE, "Service process " + cloudService.id() + " is not alive.");
+            CloudInstance.instance().logger().warn("Service process &2'&3" + cloudService.id() + "&2' &1is not alive.");
             return;
         }
 

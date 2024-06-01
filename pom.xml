@@ -14,9 +14,10 @@
         <module>base</module>
         <module>instance</module>
         <module>common</module>
-        <module>logger</module>
+<!--        <module>logger</module>-->
         <module>plugin</module>
         <module>api</module>
+        <module>terminal</module>
     </modules>
 
     <properties>
