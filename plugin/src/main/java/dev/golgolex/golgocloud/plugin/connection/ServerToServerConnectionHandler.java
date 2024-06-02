@@ -4,6 +4,7 @@ import dev.golgolex.golgocloud.cloudapi.CloudAPI;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.OnlineCredentials;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerTransferredPacket;
 import dev.golgolex.golgocloud.plugin.paper.CloudPaperPlugin;
 import dev.golgolex.quala.json.document.JsonDocument;
@@ -49,6 +50,11 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
 
             var cloudPlayer = CloudAPI.instance().cloudPlayerProvider().cloudPlayer(player.getUniqueId());
 
+            if (cloudPlayer != null && cloudPlayer.onlineCredentials() != null) {
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cYou are already connected to the network.§8."));
+                return;
+            }
+
             if (cloudPlayer == null) {
                 cloudPlayer = new CloudPlayer(
                         event.getPlayer().getUniqueId(),
@@ -67,12 +73,16 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                 );
                 CloudAPI.instance().cloudPlayerProvider().createCloudPlayer(cloudPlayer);
             }
+            cloudPlayer.onlineCredentials(credentials);
             CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerLoginPacket(cloudPlayer));
         }, () -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cNo server group could be found§8. §cIncorrect loading could be the cause§8.")));
     }
 
     @Override
     public void logout(@NotNull PlayerQuitEvent event, @NotNull Player player, Object... sub) {
-
+        CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerLogoutPacket(
+                CloudAPI.instance().cloudPlayerProvider().cloudPlayer(player.getUniqueId()),
+                CloudPaperPlugin.instance().cloudService().orElse(null)
+        ));
     }
 }

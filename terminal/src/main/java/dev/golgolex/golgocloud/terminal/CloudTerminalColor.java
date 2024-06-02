@@ -12,7 +12,7 @@ public enum CloudTerminalColor {
     DARK_GRAY(69, 69, 69, ConsoleColor.DARK_GRAY.ansiCode()),
     WHITE(255, 255, 255, ConsoleColor.WHITE.ansiCode()),
     INFO(125, 246, 255, ConsoleColor.AQUA.ansiCode()),
-    WARNING(232, 164, 77, ConsoleColor.ORANGE.ansiCode()),
+    WARNING(232, 164, 77, ConsoleColor.YELLOW.ansiCode()),
     ERROR( 247, 74, 74, ConsoleColor.RED.ansiCode()),
     PROMPT(130, 234, 255, ConsoleColor.AQUA.ansiCode()),
     SUCCESS(157, 191, 250, ConsoleColor.LIGHT_GREEN.ansiCode());

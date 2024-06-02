@@ -5,7 +5,6 @@ import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
-import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
 import dev.golgolex.quala.json.document.JsonDocument;
 import lombok.Getter;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)
@@ -80,17 +78,45 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
     public void updateCloudPlayer(@NotNull CloudPlayer cloudPlayer) {
         this.cloudPlayers.removeIf(it -> it.uniqueId().equals(cloudPlayer.uniqueId()));
         this.cloudPlayers.add(cloudPlayer);
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerUpdatePacket(cloudPlayer), null);
         new JsonDocument().write("cloudPlayer", cloudPlayer).saveAsConfig(new File(this.databaseDirectory, cloudPlayer.uniqueId().toString() + ".json").toPath());
     }
 
+    /**
+     * Handles the login of a cloud player by sending a login packet to all server channels.
+     *
+     * @param cloudPlayer The cloud player to handle login for.
+     */
     public void handleLogin(@NotNull CloudPlayer cloudPlayer) {
         CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1connected to &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2'");
+        this.updateCloudPlayer(cloudPlayer);
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLoginPacket(cloudPlayer), null);
     }
 
+    /**
+     * Adds the specified CloudPlayer to the logout queue.
+     *
+     * @param cloudPlayer The CloudPlayer to be added to the logout queue.
+     */
+    public void addToLogoutQueue(@NotNull CloudPlayer cloudPlayer) {
+        this.disconnected.put(cloudPlayer.uniqueId(), System.currentTimeMillis());
+        cloudPlayer.waitingForTransfer(true);
+        this.updateCloudPlayer(cloudPlayer);
+        CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1disconnected from &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2' (&1added to queue &33 seconds&2)");
+    }
+
+    /**
+     * Handles the logout process for a cloud player.
+     *
+     * @param cloudPlayer The cloud player to handle the logout for.
+     */
     public void handleLogout(@NotNull CloudPlayer cloudPlayer) {
-        CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1disconnected from &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2'");
-        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerLogoutPacket(cloudPlayer, CloudBase.instance().serviceProvider().cloudService(cloudPlayer.onlineCredentials().currentServer()).orElse(null)), null);
+        disconnected.remove(cloudPlayer.uniqueId());
+        if (cloudPlayer.onlineCredentials() != null) {
+            CloudBase.instance().logger().info("Player &2'&3" + cloudPlayer.username() + "&2' &1disconnected from &2'&3" + cloudPlayer.onlineCredentials().currentServer() + "&2'");
+        } else {
+            CloudBase.instance().logger().warn("Player &2'&3" + cloudPlayer.username() + "&2' &1has no OnlineCredentials");
+        }
         cloudPlayer.onlineCredentials(null);
         this.updateCloudPlayer(cloudPlayer);
     }

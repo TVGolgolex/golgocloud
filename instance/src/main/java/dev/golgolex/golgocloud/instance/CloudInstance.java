@@ -1,5 +1,6 @@
 package dev.golgolex.golgocloud.instance;
 
+import dev.golgolex.golgocloud.common.CloudShutdownExecutor;
 import dev.golgolex.golgocloud.common.FileHelper;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
@@ -85,6 +86,7 @@ public class CloudInstance {
         System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
         System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
+        CloudShutdownExecutor.task(() -> shutdown(false));
 
         this.configurationService = new ConfigurationService(this.instanceDirectory);
         this.networkProvider = new CloudNetworkProviderImpl();
@@ -122,7 +124,7 @@ public class CloudInstance {
 
         this.cloudTerminal.spacer();
         this.cloudTerminal.spacer("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudInstance.class.getPackage().getImplementationVersion());
-        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User &2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
         this.cloudTerminal.spacer("    &1Instance ID&2: &3" + this.instanceId.toString());
         this.cloudTerminal.spacer();
 
@@ -201,6 +203,8 @@ public class CloudInstance {
         for (var serviceFactory : this.serviceProvider.serviceFactories()) {
             serviceFactory.terminate();
         }
+        this.loggerFactory.close();
+        this.scheduler.cancelAllTasks();
 
         FileHelper.deleteDirectory(new File(this.instanceDirectory, "running/dynamic"));
 
@@ -209,7 +213,6 @@ public class CloudInstance {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.loggerFactory.close();
         if (!shutdownCycle) {
             System.exit(0);
         }

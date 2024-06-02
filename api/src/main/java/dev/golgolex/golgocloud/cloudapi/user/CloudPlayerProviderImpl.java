@@ -6,6 +6,8 @@ import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
 import dev.golgolex.golgocloud.common.user.events.CloudPlayerUpdateEvent;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayersReplyPacket;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayersRequestPacket;
 import dev.golgolex.quala.event.EventRegistry;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -23,7 +25,9 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     @Override
     public void reloadPlayers() {
-
+        CloudPlayersReplyPacket replyPacket = CloudAPI.instance().nettyClient().thisNetworkChannel().sendQuery(new CloudPlayersRequestPacket());
+        this.cloudPlayers.clear();
+        this.cloudPlayers.addAll(replyPacket.cloudPlayers());
     }
 
     @Override
@@ -48,7 +52,7 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     @Override
     public void updateCached(@NotNull CloudPlayer element) {
-        EventRegistry.registerListener(new CloudPlayerUpdateEvent(element));
+        EventRegistry.call(new CloudPlayerUpdateEvent(element));
         this.cloudPlayers.removeIf(it -> it.uniqueId().equals(element.uniqueId()));
         this.cloudPlayers.add(element);
     }

@@ -35,6 +35,11 @@ public final class InstanceEventHandler {
 
     @EventTarget
     public void onClientShutdown(ServerChannelInactiveEvent event) {
+
+        if (CloudBase.instance().serviceProvider().cloudService(event.networkChannel().channelIdentity().namespace()).isPresent()) {
+            return;
+        }
+
         this.instanceService.cloudInstances().stream().filter(cloudInstance -> cloudInstance.uuid().equals(event.networkChannel().channelIdentity().uniqueId()))
                 .findFirst()
                 .ifPresentOrElse(this.instanceService::disconnect,

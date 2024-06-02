@@ -1,9 +1,12 @@
 package dev.golgolex.golgocloud.terminal;
 
+import dev.golgolex.golgocloud.common.CloudShutdownExecutor;
 import dev.golgolex.golgocloud.logger.LogLevel;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
+
+import java.util.Arrays;
 
 
 public final class CloudTerminalThread extends Thread {
@@ -13,7 +16,7 @@ public final class CloudTerminalThread extends Thread {
     public CloudTerminalThread(CloudTerminal terminal) {
         this.terminal = terminal;
         setName("console-reading-thread");
-        this.prompt = this.terminal.includeColorCodes("&3cloud &2» &1");
+        this.prompt = this.terminal.includeColorCodes("&3CloudSystem&2: &1");
         setContextClassLoader(Thread.currentThread().getContextClassLoader());
     }
 
@@ -26,8 +29,8 @@ public final class CloudTerminalThread extends Thread {
                         final var rawLine = terminal.lineReader().readLine(prompt);
                         final var line = rawLine.split(" ");
                         resetConsoleInput();
-
                         if (line.length > 0) {
+                            System.out.println(Arrays.toString(line));
                             terminal.commandService().call(line);
                         }
                     } catch (EndOfFileException ignore) {
@@ -35,6 +38,7 @@ public final class CloudTerminalThread extends Thread {
                     }
                 } catch (UserInterruptException exception) {
                     resetConsoleInput();
+                    System.exit(0);
                 }
             } catch (Exception e) {
                 resetConsoleInput();

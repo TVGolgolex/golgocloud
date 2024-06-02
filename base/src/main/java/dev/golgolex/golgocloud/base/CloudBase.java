@@ -1,15 +1,18 @@
 package dev.golgolex.golgocloud.base;
 
+import dev.golgolex.golgocloud.base.commands.ClearCommand;
 import dev.golgolex.golgocloud.base.commands.ReloadCommand;
 import dev.golgolex.golgocloud.base.commands.StopCommand;
 import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.base.instance.CloudInstanceProviderImpl;
 import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.base.service.CloudServiceCommand;
 import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.base.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.base.user.CloudPlayerProviderImpl;
+import dev.golgolex.golgocloud.common.CloudShutdownExecutor;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.base.configuration.DatabaseConfiguration;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
@@ -70,12 +73,12 @@ public final class CloudBase {
             boolean ignore = logDirectory.mkdirs();
         }
 
-//        this.logger = new Logger(logDirectory);
         this.cloudTerminal = new CloudTerminal();
         this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
         System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
         System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
+        CloudShutdownExecutor.task(() -> shutdown(false));
 
         this.configurationService = new ConfigurationService(this.baseDirectory);
         this.nettyServer = new NettyServer(false, InactiveAction.SHUTDOWN, NetworkCodec.OSGAN, future -> {
@@ -103,12 +106,14 @@ public final class CloudBase {
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 
         this.cloudTerminal.spacer();
-        this.cloudTerminal.spacer("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudBase.class.getPackage().getImplementationVersion());
-        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User &2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.spacer("  &3Cloud &1for ClayMC.net &1version&2: &3" + CloudBase.class.getPackage().getImplementationVersion());
+        this.cloudTerminal.spacer("  &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
         this.cloudTerminal.spacer();
 
         this.cloudTerminal.commandService().registerCommand(new ReloadCommand());
         this.cloudTerminal.commandService().registerCommand(new StopCommand());
+        this.cloudTerminal.commandService().registerCommand(new ClearCommand());
+        this.cloudTerminal.commandService().registerCommand(new CloudServiceCommand());
 
         this.bootstrap();
         this.cloudTerminal.start();
@@ -148,12 +153,13 @@ public final class CloudBase {
     }
 
     public void shutdown(boolean shutdownCycle) {
+        this.loggerFactory.close();
+        this.scheduler.cancelAllTasks();
         try {
             this.nettyServer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.loggerFactory.close();
         if (!shutdownCycle) {
             System.exit(0);
         }

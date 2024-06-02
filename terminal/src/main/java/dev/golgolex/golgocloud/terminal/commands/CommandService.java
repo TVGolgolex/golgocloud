@@ -6,27 +6,38 @@ import lombok.experimental.Accessors;
 
 import java.util.*;
 
+/**
+ * CommandService class provides functionality for registering and invoking commands based on command line arguments.
+ */
 @Getter
 @Accessors(fluent = true)
 public final class CommandService {
 
     private final List<Object> commands = new ArrayList<>();
 
+    /**
+     * Registers a command in the command service.
+     *
+     * @param command The command object to be registered.
+     */
     public void registerCommand(Object command) {
         this.commands.add(command);
     }
 
+    /**
+     * Calls the appropriate command based on the provided arguments.
+     *
+     * @param args An array of command line arguments
+     */
     @SneakyThrows
     public void call(String[] args) {
         var main = args[0];
         for (var command : commands) {
-
-            var mainCommand = command.getClass().getDeclaredAnnotation(Command.class);;
+            var mainCommand = command.getClass().getDeclaredAnnotation(Command.class);
 
             if (mainCommand == null) {
                 continue;
             }
-
             if (!(main.equalsIgnoreCase(mainCommand.command()) || Arrays.stream(mainCommand.aliases()).anyMatch(it -> it.equalsIgnoreCase(main)))) {
                 continue;
             }
@@ -43,8 +54,8 @@ public final class CommandService {
 
                 var commandData = method.getDeclaredAnnotation(SubCommand.class);
                 if ((commandData.args().length + 1) == args.length) {
-                    boolean find = isSubCommand(args, commandData);
-                    if (find) {
+                    boolean subCommand = isSubCommand(args, commandData);
+                    if (subCommand) {
                         var params = new LinkedList<>();
 
                         for (var parameter : method.getParameters()) {
@@ -75,6 +86,13 @@ public final class CommandService {
         }
     }
 
+    /**
+     * Checks if the given arguments correspond to the sub-command defined in the SubCommand annotation.
+     *
+     * @param args        the command line arguments
+     * @param commandData the SubCommand annotation
+     * @return true if the arguments correspond to the sub-command, false otherwise
+     */
     private static boolean isSubCommand(String[] args, SubCommand commandData) {
         var index = 0;
         var find = true;

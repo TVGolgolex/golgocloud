@@ -8,8 +8,6 @@ import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiver;
 public class CloudPlayerLogoutPacketReceiver extends PacketReceiver<CloudPlayerLogoutPacket> {
     @Override
     public void receivePacket(CloudPlayerLogoutPacket packet, NetworkChannel networkChannel) {
-        var cloudPlayer = packet.cloudPlayer().waitingForTransfer(true);
-        CloudBase.instance().playerProvider().updateCloudPlayer(cloudPlayer);
-        CloudBase.instance().playerProvider().disconnected().put(cloudPlayer.uniqueId(), System.currentTimeMillis());
+        CloudBase.instance().playerProvider().addToLogoutQueue(packet.cloudPlayer());
     }
 }

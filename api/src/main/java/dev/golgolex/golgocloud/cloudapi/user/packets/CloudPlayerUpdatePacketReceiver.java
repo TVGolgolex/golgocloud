@@ -1,0 +1,13 @@
+package dev.golgolex.golgocloud.cloudapi.user.packets;
+
+import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
+import dev.golgolex.quala.netty5.channel.NetworkChannel;
+import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiver;
+
+public class CloudPlayerUpdatePacketReceiver extends PacketReceiver<CloudPlayerUpdatePacket> {
+    @Override
+    public void receivePacket(CloudPlayerUpdatePacket cloudPlayerUpdatePacket, NetworkChannel networkChannel) {
+        CloudAPI.instance().cloudPlayerProvider().updateCached(cloudPlayerUpdatePacket.cloudPlayer());
+    }
+}
