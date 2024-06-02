@@ -8,7 +8,7 @@ import dev.golgolex.golgocloud.terminal.commands.SubCommand;
 
 import java.util.stream.Collectors;
 
-@Command(command = "service", aliases = "ser", description = "Manage the services")
+@Command(command = "service", aliases = "-s", description = "Manage the services")
 public final class CloudServiceCommand {
 
     @DefaultCommand
@@ -18,7 +18,7 @@ public final class CloudServiceCommand {
         CloudBase.instance().logger().info("&3service &2<&1id&2> &1terminate &2- &1terminate the service");
     }
 
-    @SubCommand(args = "list")
+    @SubCommand(args = {"list"})
     public void list() {
         CloudBase.instance().serviceProvider().cloudServices().stream().collect(Collectors.groupingBy(CloudService::group, Collectors.toList())).forEach((group, services) -> {
             String groupInfo = String.format("&3%s &2: (&1%d running services&2)", group, services.size());

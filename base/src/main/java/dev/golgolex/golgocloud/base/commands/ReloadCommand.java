@@ -4,7 +4,7 @@ import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.terminal.commands.Command;
 import dev.golgolex.golgocloud.terminal.commands.DefaultCommand;
 
-@Command(command = "reload", aliases = "!?", description = "Reload the entire cloudsystem")
+@Command(command = "reload", aliases = "rl", description = "reload the cloud")
 public class ReloadCommand {
     @DefaultCommand
     public void handle() {
