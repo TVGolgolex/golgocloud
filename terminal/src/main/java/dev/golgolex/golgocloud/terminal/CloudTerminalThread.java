@@ -30,7 +30,6 @@ public final class CloudTerminalThread extends Thread {
                         final var line = rawLine.split(" ");
                         resetConsoleInput();
                         if (line.length > 0) {
-                            System.out.println(Arrays.toString(line));
                             terminal.commandService().call(line);
                         }
                     } catch (EndOfFileException ignore) {

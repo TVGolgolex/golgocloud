@@ -85,6 +85,7 @@ public final class CommandService {
                             }
                         }
                         method.invoke(command, params.toArray());
+                        break;
                     }
                 }
             }
@@ -92,6 +93,9 @@ public final class CommandService {
     }
 
     private static boolean isSubCommand(String[] args, SubCommand commandData) {
+        if (args.length == 0) {
+            return false;
+        }
         var index = 0;
         var find = true;
         for (var s : Arrays.copyOfRange(args, 1, args.length)) {
