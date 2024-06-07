@@ -5,21 +5,24 @@ import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.terminal.commands.Command;
 import dev.golgolex.golgocloud.terminal.commands.DefaultCommand;
 import dev.golgolex.golgocloud.terminal.commands.SubCommand;
+import dev.golgolex.golgocloud.terminal.commands.SubCommandCompleter;
+import org.jline.reader.Candidate;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Command(command = "service", aliases = "-s", description = "Manage the services")
 public final class CloudServiceCommand {
 
     @DefaultCommand
-    public void onDefault() {
+    public void handle() {
         CloudBase.instance().logger().info("&3service &1list &2- &1list all services");
         CloudBase.instance().logger().info("&3service &2<&1id&2> &2- &1shows all information");
         CloudBase.instance().logger().info("&3service &2<&1id&2> &1terminate &2- &1terminate the service");
     }
 
     @SubCommand(args = {"list"})
-    public void list() {
+    public void handleList() {
         CloudBase.instance().serviceProvider().cloudServices().stream().collect(Collectors.groupingBy(CloudService::group, Collectors.toList())).forEach((group, services) -> {
             String groupInfo = String.format("&3%s &2: (&1%d running services&2)", group, services.size());
             CloudBase.instance().logger().info(groupInfo);
@@ -33,7 +36,7 @@ public final class CloudServiceCommand {
     }
 
     @SubCommand(args = {"<id>"})
-    public void information(String id) {
+    public void handleInfo(String id) {
         CloudBase.instance().serviceProvider().cloudService(id).ifPresentOrElse(cloudService -> {
             CloudBase.instance().logger().info("ID&2: &3" + cloudService.id());
             CloudBase.instance().logger().info("Group&2: &3" + cloudService.group());
@@ -61,11 +64,11 @@ public final class CloudServiceCommand {
         }, () -> CloudBase.instance().logger().warn("Service &2'&1" + id + "&2' &1not found."));
     }
 
-    /*@SubCommandCompleter(completionPattern = "<id>")
+    @SubCommandCompleter(completionPattern = "<id>")
     public void completeInfoMethod(int index, List<Candidate> candidates) {
         if (index == 1) {
             candidates.addAll(CloudBase.instance().serviceProvider().cloudServices().stream().map(cloudService -> new Candidate(cloudService.id())).toList());
         }
-    }*/
+    }
 
 }

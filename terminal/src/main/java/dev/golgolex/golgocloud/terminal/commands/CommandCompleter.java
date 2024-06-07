@@ -1,21 +1,6 @@
-/*
- * Copyright 2024 Mirco Lindenau | HttpMarco
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.golgolex.golgocloud.terminal.commands;
 
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
@@ -25,18 +10,27 @@ import org.jline.reader.ParsedLine;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * CommandCompleter is a class that implements the Completer interface and provides auto-completion for commands.
+ */
+@AllArgsConstructor
 public final class CommandCompleter implements Completer {
 
+    /**
+     * The CommandService class is responsible for registering and executing commands.
+     */
     private final CommandService commandService;
 
-    public CommandCompleter(CommandService commandService) {
-        this.commandService = commandService;
-    }
-
+    /**
+     * Autocompletes command line input based on defined commands and their sub-commands.
+     *
+     * @param reader     The LineReader object used for reading user input.
+     * @param line       The ParsedLine object representing the current command line input.
+     * @param candidates The list of candidates that will be displayed to the user as auto-complete options.
+     */
     @Override
     @SneakyThrows
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-
         var context = line.line().split(" ", -1);
 
         if (context.length == 0) {
@@ -45,7 +39,7 @@ public final class CommandCompleter implements Completer {
 
         var main = context[0];
 
-        for (var command : commandService.commands()) {
+        for (var command : this.commandService.commands()) {
 
             var data = command.getClass().getDeclaredAnnotation(Command.class);
 

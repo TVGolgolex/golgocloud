@@ -18,6 +18,7 @@
         <module>plugin</module>
         <module>api</module>
         <module>terminal</module>
+        <module>module</module>
     </modules>
 
     <properties>

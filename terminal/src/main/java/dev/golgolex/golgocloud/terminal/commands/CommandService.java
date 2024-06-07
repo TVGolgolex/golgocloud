@@ -1,44 +1,44 @@
-/*
- * Copyright 2024 Mirco Lindenau | HttpMarco
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.golgolex.golgocloud.terminal.commands;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * The CommandService class is responsible for registering and executing commands.
+ */
 @Getter
 @Accessors(fluent = true)
 public final class CommandService {
 
+    /**
+     * Registers a command in the command service.
+     */
     private final List<Object> commands = new ArrayList<>();
 
-    public void registerCommand(Object command) {
+    /**
+     * Registers a command in the command service.
+     *
+     * @param command the command to be registered
+     */
+    public void registerCommand(@NotNull Object command) {
         this.commands.add(command);
     }
 
+    /**
+     * Executes a command based on the given arguments.
+     *
+     * @param args the command arguments
+     */
     @SneakyThrows
-    public void call(String[] args) {
+    public void call(@NotNull String[] args) {
         var main = args[0];
         for (var command : commands) {
 
-            var mainCommand = command.getClass().getDeclaredAnnotation(Command.class);;
-
+            var mainCommand = command.getClass().getDeclaredAnnotation(Command.class);
             if (mainCommand == null) {
                 continue;
             }
@@ -73,7 +73,6 @@ public final class CommandService {
                                 }
                                 argIndex++;
                             }
-
                             if (index == -1) {
                                 continue;
                             }
@@ -84,21 +83,53 @@ public final class CommandService {
                                 params.add(parameter.getType().cast(args[index + 1]));
                             }
                         }
-                        method.invoke(command, params.toArray());
-                        break;
+                        try {
+                            if (method.getParameterCount() == 0) {
+                                System.out.println("Command executed: " + method.getName() + "," + command.getClass().getSimpleName() + " with no parameters");
+                                method.invoke(command);
+                            } else {
+                                System.out.println("Command executed: " + method.getName() + "," + command.getClass().getSimpleName() + " with " + params.toArray().length + " parameters");
+                                method.invoke(command, params.toArray());
+                            }
+                        } catch (Exception exception) {
+                            System.err.println(exception.getMessage());
+                        }
                     }
                 }
             }
         }
     }
 
-    private static boolean isSubCommand(String[] args, SubCommand commandData) {
-        if (args.length == 0) {
-            return false;
-        }
+    /**
+     * Checks if the given arguments match the sub-command arguments specified in the SubCommand annotation.
+     *
+     * @param args        the command arguments
+     * @param commandData the SubCommand annotation that contains the expected arguments
+     * @return true if the arguments match, false otherwise
+     */
+    /*private static boolean isSubCommand(String[] args, SubCommand commandData) {
         var index = 0;
         var find = true;
         for (var s : Arrays.copyOfRange(args, 1, args.length)) {
+            var subPart = commandData.args()[index];
+            if (subPart.startsWith("<") && subPart.endsWith(">")) {
+                index++;
+                continue;
+            }
+            if (!Objects.equals(subPart, s)) {
+                find = false;
+            }
+            index++;
+        }
+        return find;
+    }*/
+    private static boolean isSubCommand(String[] args, SubCommand commandData) {
+        var index = 0;
+        var find = true;
+        for (var s : Arrays.copyOfRange(args, 1, args.length)) {
+            if ((args.length - 1) < index) {
+                return find;
+            }
             var subPart = commandData.args()[index];
             if (subPart.startsWith("<") && subPart.endsWith(">")) {
                 index++;

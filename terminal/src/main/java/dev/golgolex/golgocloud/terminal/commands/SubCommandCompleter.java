@@ -1,19 +1,3 @@
-/*
- * Copyright 2024 Mirco Lindenau | HttpMarco
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.golgolex.golgocloud.terminal.commands;
 
 import java.lang.annotation.ElementType;
@@ -21,10 +5,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * A custom annotation used to define completion patterns for command sub-methods.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SubCommandCompleter {
 
+    /**
+     * Retrieves the completion pattern for a method.
+     *
+     * @return an array of strings representing the completion pattern
+     */
     String[] completionPattern();
 
 }
