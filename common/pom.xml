@@ -19,8 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.golgolex</groupId>
-            <artifactId>quala</artifactId>
+            <groupId>dev.golgolex</groupId>
+            <artifactId>quala-bom</artifactId>
             <version>${dependency.quala.version}</version>
             <scope>provided</scope>
         </dependency>

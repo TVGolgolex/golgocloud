@@ -3,7 +3,7 @@ package dev.golgolex.golgocloud.common.user.packets;
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
-import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;

@@ -1,13 +1,14 @@
 package dev.golgolex.golgocloud.base.commands;
 
 import dev.golgolex.golgocloud.base.CloudBase;
-import dev.golgolex.golgocloud.terminal.commands.Command;
-import dev.golgolex.golgocloud.terminal.commands.DefaultCommand;
+import dev.golgolex.quala.command.Command;
+import dev.golgolex.quala.command.CommandSender;
+import dev.golgolex.quala.command.DefaultCommand;
 
 @Command(command = "reload", aliases = "rl", description = "reload the cloud")
 public class ReloadCommand {
     @DefaultCommand
-    public void handle() {
+    public void handle(CommandSender commandSender) {
         var started = System.currentTimeMillis();
         CloudBase.instance().logger().warn("Cloud reload has been started!");
         CloudBase.instance().reload();

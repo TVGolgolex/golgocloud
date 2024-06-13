@@ -19,15 +19,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.golgolex</groupId>
-            <artifactId>quala</artifactId>
-            <version>${dependency.quala.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>dev.golgolex</groupId>
-            <artifactId>terminal</artifactId>
-            <version>${project.version}</version>
+            <artifactId>quala-bom</artifactId>
+            <version>${dependency.quala.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

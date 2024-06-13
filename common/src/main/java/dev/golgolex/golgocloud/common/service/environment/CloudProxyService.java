@@ -4,7 +4,7 @@ import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
 import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
 import dev.golgolex.golgocloud.common.user.ServicePlayer;
-import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

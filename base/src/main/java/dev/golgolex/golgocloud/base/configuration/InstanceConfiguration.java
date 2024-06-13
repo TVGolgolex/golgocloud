@@ -3,8 +3,8 @@ package dev.golgolex.golgocloud.base.configuration;
 import com.google.common.reflect.TypeToken;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationClass;
 import dev.golgolex.golgocloud.common.instance.CloudInstance;
-import dev.golgolex.quala.json.document.JsonDocument;
-import dev.golgolex.quala.utils.string.StringUtils;
+import dev.golgolex.quala.common.json.JsonDocument;
+import dev.golgolex.quala.common.utils.string.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

@@ -1,6 +1,6 @@
 package dev.golgolex.golgocloud.common.permission;
 
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

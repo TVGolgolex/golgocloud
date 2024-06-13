@@ -2,8 +2,8 @@ package dev.golgolex.golgocloud.common.service.packets;
 
 import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
-import dev.golgolex.quala.netty5.protocol.Packet;
-import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
+import dev.golgolex.quala.netty5.basic.protocol.Packet;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 

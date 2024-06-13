@@ -9,6 +9,7 @@ import dev.golgolex.golgocloud.cloudapi.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.user.CloudPlayerProviderImpl;
+import dev.golgolex.golgocloud.common.MongoConnectionUtil;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationReplyPacket;
 import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationRequestPacket;
@@ -18,14 +19,12 @@ import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
-import dev.golgolex.quala.json.document.JsonDocument;
-import dev.golgolex.quala.mongo.MongoConnectionUtil;
-import dev.golgolex.quala.netty5.ChannelIdentity;
-import dev.golgolex.quala.netty5.InactiveAction;
-import dev.golgolex.quala.netty5.NetworkCodec;
-import dev.golgolex.quala.netty5.client.NettyClient;
-import dev.golgolex.quala.translation.DefaultTranslationAPI;
-import dev.golgolex.quala.translation.TranslationAPI;
+import dev.golgolex.quala.netty5.basic.ChannelIdentity;
+import dev.golgolex.quala.netty5.basic.InactiveAction;
+import dev.golgolex.quala.netty5.basic.NetworkCodec;
+import dev.golgolex.quala.netty5.basic.client.NettyClient;
+import dev.golgolex.quala.translation.basic.DefaultTranslationAPI;
+import dev.golgolex.quala.translation.basic.TranslationAPI;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.ApiStatus;
@@ -111,9 +110,7 @@ public class CloudAPI {
                 mongoConfiguration.readString("database"),
                 mongoConfiguration.readString("userDatabaseName"));
 
-        if (mongoDatabase != null) {
-            this.translationAPI = new DefaultTranslationAPI(this.mongoDatabase.getCollection(collectionsConfiguration.readString("translation")));
-        }
+        this.translationAPI = new DefaultTranslationAPI(this.mongoDatabase.getCollection(collectionsConfiguration.readString("translation")));
     }
 
     public void terminate(boolean shutdownCycle) {

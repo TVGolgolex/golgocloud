@@ -1,6 +1,6 @@
 package dev.golgolex.golgocloud.common.configuration;
 
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;

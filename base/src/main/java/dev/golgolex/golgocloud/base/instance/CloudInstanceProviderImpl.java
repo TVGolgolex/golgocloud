@@ -7,8 +7,8 @@ import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthReplyPacket;
 import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
-import dev.golgolex.quala.event.EventRegistry;
-import dev.golgolex.quala.netty5.channel.NetworkChannel;
+import dev.golgolex.quala.event.registry.EventRegistry;
+import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)

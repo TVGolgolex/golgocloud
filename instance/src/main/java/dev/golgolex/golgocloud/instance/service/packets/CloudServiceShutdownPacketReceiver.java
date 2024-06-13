@@ -2,8 +2,8 @@ package dev.golgolex.golgocloud.instance.service.packets;
 
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
-import dev.golgolex.quala.netty5.channel.NetworkChannel;
-import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiver;
+import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
+import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;
 
 public final class CloudServiceShutdownPacketReceiver extends PacketReceiver<CloudServiceShutdownPacket> {
     @Override

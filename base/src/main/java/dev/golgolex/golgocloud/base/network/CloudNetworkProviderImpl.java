@@ -35,7 +35,7 @@ import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayersRequestPacket;
-import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiverManager;
+import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiverManager;
 import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetworkProviderImpl implements CloudNetworkProvider {

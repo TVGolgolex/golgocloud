@@ -6,7 +6,7 @@ import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +50,11 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
                 try {
                     CloudPlayer cloudPlayer = JsonDocument.fromFile(file).readObject("cloudPlayer", new TypeToken<CloudPlayer>() {
                     }.getType());
+
+                    if (cloudPlayer.onlineCredentials() != null) {
+                        cloudPlayer.onlineCredentials(null);
+                    }
+
                     this.cloudPlayers.add(cloudPlayer);
                 } catch (Exception exception) {
                     System.err.println(exception.getMessage());

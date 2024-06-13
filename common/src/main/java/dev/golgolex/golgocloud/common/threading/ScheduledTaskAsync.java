@@ -31,7 +31,7 @@ public class ScheduledTaskAsync extends ScheduledTask {
         if (repeatTime > 0) {
             repeatTime--;
         } else {
-            dev.golgolex.quala.scheduler.Scheduler.runtimeScheduler().schedule(runnable);
+            dev.golgolex.quala.common.scheduler.Scheduler.runtimeScheduler().schedule(runnable);
             if (repeatTime == -1) {
                 cancel();
                 return;

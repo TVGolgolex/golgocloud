@@ -16,16 +16,16 @@ import dev.golgolex.golgocloud.common.CloudShutdownExecutor;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
 import dev.golgolex.golgocloud.base.configuration.DatabaseConfiguration;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
-import dev.golgolex.golgocloud.logger.Logger;
-import dev.golgolex.golgocloud.logger.LoggerFactory;
-import dev.golgolex.golgocloud.logger.handler.FileLoggerHandler;
-import dev.golgolex.golgocloud.logger.handler.LoggerOutPutStream;
-import dev.golgolex.golgocloud.terminal.CloudTerminal;
-import dev.golgolex.quala.netty5.InactiveAction;
-import dev.golgolex.quala.netty5.NetworkCodec;
-import dev.golgolex.quala.netty5.NetworkUtils;
-import dev.golgolex.quala.netty5.server.NettyServer;
-import dev.golgolex.quala.utils.color.ConsoleColor;
+import dev.golgolex.quala.common.utils.color.ConsoleColor;
+import dev.golgolex.quala.logger.Logger;
+import dev.golgolex.quala.logger.LoggerFactory;
+import dev.golgolex.quala.logger.handler.FileLoggerHandler;
+import dev.golgolex.quala.logger.handler.LoggerOutPutStream;
+import dev.golgolex.quala.netty5.basic.InactiveAction;
+import dev.golgolex.quala.netty5.basic.NetworkCodec;
+import dev.golgolex.quala.netty5.basic.NetworkUtils;
+import dev.golgolex.quala.netty5.basic.server.NettyServer;
+import dev.golgolex.quala.terminal.QualaTerminal;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -43,7 +43,7 @@ public final class CloudBase {
     private static CloudBase instance;
     private final File baseDirectory;
 
-    private final CloudTerminal cloudTerminal;
+    private final QualaTerminal cloudTerminal;
     private final LoggerFactory loggerFactory = new LoggerFactory();
     private final Logger logger = new Logger(loggerFactory, false);
 
@@ -73,7 +73,7 @@ public final class CloudBase {
             boolean ignore = logDirectory.mkdirs();
         }
 
-        this.cloudTerminal = new CloudTerminal();
+        this.cloudTerminal = new QualaTerminal("&3base&2: &1");
         this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
         System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
         System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
@@ -110,10 +110,10 @@ public final class CloudBase {
         this.cloudTerminal.spacer("  &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
         this.cloudTerminal.spacer();
 
-        this.cloudTerminal.commandService().registerCommand(new ReloadCommand());
-        this.cloudTerminal.commandService().registerCommand(new StopCommand());
-        this.cloudTerminal.commandService().registerCommand(new ClearCommand());
-        this.cloudTerminal.commandService().registerCommand(new CloudServiceCommand());
+        this.cloudTerminal.terminalCommandService().registerCommand(new ReloadCommand());
+        this.cloudTerminal.terminalCommandService().registerCommand(new StopCommand());
+        this.cloudTerminal.terminalCommandService().registerCommand(new ClearCommand());
+        this.cloudTerminal.terminalCommandService().registerCommand(new CloudServiceCommand());
 
         this.bootstrap();
         this.cloudTerminal.start();

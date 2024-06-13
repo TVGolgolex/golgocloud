@@ -8,7 +8,7 @@ import dev.golgolex.golgocloud.common.group.packets.CloudGroupCreatePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupDeletePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupUpdatePacket;
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;

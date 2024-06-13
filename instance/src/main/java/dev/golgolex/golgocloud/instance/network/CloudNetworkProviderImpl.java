@@ -11,7 +11,7 @@ import dev.golgolex.golgocloud.instance.network.packet.InstanceReloadPacketRecei
 import dev.golgolex.golgocloud.instance.network.packet.InstanceUpdatePacketReceiver;
 import dev.golgolex.golgocloud.instance.service.packets.CloudServicePreparePacketReceiver;
 import dev.golgolex.golgocloud.instance.service.packets.CloudServiceShutdownPacketReceiver;
-import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiverManager;
+import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiverManager;
 import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetworkProviderImpl implements CloudNetworkProvider {

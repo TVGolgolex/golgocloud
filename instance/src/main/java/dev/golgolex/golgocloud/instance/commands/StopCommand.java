@@ -1,8 +1,8 @@
 package dev.golgolex.golgocloud.instance.commands;
 
 import dev.golgolex.golgocloud.instance.CloudInstance;
-import dev.golgolex.golgocloud.terminal.commands.Command;
-import dev.golgolex.golgocloud.terminal.commands.DefaultCommand;
+import dev.golgolex.quala.command.Command;
+import dev.golgolex.quala.command.DefaultCommand;
 
 @Command(command = "stop", description = "stop the cloud instance")
 public class StopCommand {

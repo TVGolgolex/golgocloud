@@ -7,7 +7,7 @@ import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerTransferredPacket;
 import dev.golgolex.golgocloud.plugin.paper.CloudPaperPlugin;
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerLoginEvent;

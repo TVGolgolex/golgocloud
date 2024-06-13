@@ -16,17 +16,16 @@ import dev.golgolex.golgocloud.instance.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.instance.service.CloudServiceWorkerThread;
 import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.instance.service.version.CloudServiceVersionProvider;
-import dev.golgolex.golgocloud.logger.Logger;
-import dev.golgolex.golgocloud.logger.LoggerFactory;
-import dev.golgolex.golgocloud.logger.handler.FileLoggerHandler;
-import dev.golgolex.golgocloud.logger.handler.LoggerOutPutStream;
-import dev.golgolex.golgocloud.terminal.CloudTerminal;
-import dev.golgolex.quala.Quala;
-import dev.golgolex.quala.netty5.ChannelIdentity;
-import dev.golgolex.quala.netty5.InactiveAction;
-import dev.golgolex.quala.netty5.NetworkCodec;
-import dev.golgolex.quala.netty5.client.NettyClient;
-import dev.golgolex.quala.utils.color.ConsoleColor;
+import dev.golgolex.quala.common.Quala;
+import dev.golgolex.quala.logger.Logger;
+import dev.golgolex.quala.logger.LoggerFactory;
+import dev.golgolex.quala.logger.handler.FileLoggerHandler;
+import dev.golgolex.quala.logger.handler.LoggerOutPutStream;
+import dev.golgolex.quala.netty5.basic.ChannelIdentity;
+import dev.golgolex.quala.netty5.basic.InactiveAction;
+import dev.golgolex.quala.netty5.basic.NetworkCodec;
+import dev.golgolex.quala.netty5.basic.client.NettyClient;
+import dev.golgolex.quala.terminal.QualaTerminal;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -36,7 +35,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)
@@ -46,7 +44,7 @@ public class CloudInstance {
     private static CloudInstance instance;
     private final File instanceDirectory;
 
-    private final CloudTerminal cloudTerminal;
+    private final QualaTerminal cloudTerminal;
     private final LoggerFactory loggerFactory = new LoggerFactory();
     private final Logger logger = new Logger(loggerFactory, false);
 
@@ -81,7 +79,7 @@ public class CloudInstance {
             boolean ignore = logDirectory.mkdirs();
         }*/
 
-        this.cloudTerminal = new CloudTerminal();
+        this.cloudTerminal = new QualaTerminal("&3instance&2: &1");
         this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
         System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
         System.setOut(new PrintStream(new LoggerOutPutStream(this.logger, false), true, StandardCharsets.UTF_8));
@@ -128,7 +126,7 @@ public class CloudInstance {
         this.cloudTerminal.spacer("    &1Instance ID&2: &3" + this.instanceId.toString());
         this.cloudTerminal.spacer();
 
-        this.cloudTerminal.commandService().registerCommand(new StopCommand());
+        this.cloudTerminal.terminalCommandService().registerCommand(new StopCommand());
 
         var os = System.getProperty("os.name").toLowerCase();
         this.osLinux = os.contains("nux") || os.contains("nix");

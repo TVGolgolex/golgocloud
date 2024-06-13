@@ -12,8 +12,8 @@ import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnectionHandler
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperAsyncPlayerPreLoginListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerLoginListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerQuitListener;
-import dev.golgolex.quala.json.document.JsonDocument;
-import dev.golgolex.quala.netty5.ChannelIdentity;
+import dev.golgolex.quala.common.json.JsonDocument;
+import dev.golgolex.quala.netty5.basic.ChannelIdentity;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;

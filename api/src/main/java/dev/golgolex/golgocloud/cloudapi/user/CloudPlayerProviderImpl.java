@@ -8,7 +8,7 @@ import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayersReplyPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayersRequestPacket;
-import dev.golgolex.quala.event.EventRegistry;
+import dev.golgolex.quala.event.registry.EventRegistry;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;

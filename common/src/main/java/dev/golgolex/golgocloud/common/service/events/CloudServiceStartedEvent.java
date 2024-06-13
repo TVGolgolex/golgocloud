@@ -5,7 +5,7 @@ package dev.golgolex.golgocloud.common.service.events;
  */
 
 import dev.golgolex.golgocloud.common.service.CloudService;
-import dev.golgolex.quala.event.events.Event;
+import dev.golgolex.quala.event.registry.events.Event;
 import org.jetbrains.annotations.NotNull;
 
 public record CloudServiceStartedEvent(@NotNull CloudService cloudService) implements Event {

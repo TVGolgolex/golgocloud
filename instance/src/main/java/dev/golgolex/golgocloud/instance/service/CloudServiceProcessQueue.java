@@ -4,8 +4,7 @@ import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.golgocloud.instance.configuration.InstanceConfiguration;
-import dev.golgolex.quala.Quala;
-import dev.golgolex.quala.utils.color.ConsoleColor;
+import dev.golgolex.quala.common.Quala;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Queue;

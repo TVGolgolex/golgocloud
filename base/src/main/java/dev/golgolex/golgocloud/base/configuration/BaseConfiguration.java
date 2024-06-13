@@ -3,7 +3,7 @@ package dev.golgolex.golgocloud.base.configuration;
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationClass;
 import dev.golgolex.golgocloud.common.SyncMode;
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

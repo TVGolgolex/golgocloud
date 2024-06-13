@@ -13,9 +13,9 @@ import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
 import dev.golgolex.golgocloud.common.template.CloudServiceTemplate;
-import dev.golgolex.quala.Quala;
-import dev.golgolex.quala.utils.color.ConsoleColor;
-import dev.golgolex.quala.utils.string.StringUtils;
+import dev.golgolex.golgocloud.common.user.CloudPlayer;
+import dev.golgolex.quala.common.Quala;
+import dev.golgolex.quala.common.utils.string.StringUtils;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +48,15 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     public void shutdownService(@NotNull CloudService cloudService) {
         CloudBase.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was stopped");
         this.cloudServices = this.resetList(this.cloudServices, it -> it.id().equalsIgnoreCase(cloudService.id()));
+
+        for (var cloudPlayer : CloudBase.instance().playerProvider().cloudPlayers()) {
+            if (cloudPlayer.onlineCredentials() != null
+                    && cloudPlayer.onlineCredentials().currentServer() != null
+                    && cloudPlayer.onlineCredentials().currentServer().equalsIgnoreCase(cloudService.id())) {
+                CloudBase.instance().playerProvider().addToLogoutQueue(cloudPlayer);
+            }
+        }
+
         CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
     }
 

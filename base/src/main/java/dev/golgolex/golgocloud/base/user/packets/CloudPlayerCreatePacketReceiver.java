@@ -2,8 +2,8 @@ package dev.golgolex.golgocloud.base.user.packets;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
-import dev.golgolex.quala.netty5.channel.NetworkChannel;
-import dev.golgolex.quala.netty5.protocol.receiver.PacketReceiver;
+import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
+import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;
 
 public class CloudPlayerCreatePacketReceiver extends PacketReceiver<CloudPlayerCreatePacket> {
     @Override

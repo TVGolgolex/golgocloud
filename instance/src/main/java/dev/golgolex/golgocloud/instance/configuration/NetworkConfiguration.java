@@ -1,7 +1,7 @@
 package dev.golgolex.golgocloud.instance.configuration;
 
 import dev.golgolex.golgocloud.common.configuration.ConfigurationClass;
-import dev.golgolex.quala.json.document.JsonDocument;
+import dev.golgolex.quala.common.json.JsonDocument;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

@@ -2,13 +2,12 @@ package dev.golgolex.golgocloud.base.instance;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.base.configuration.InstanceConfiguration;
-import dev.golgolex.quala.event.EventTarget;
-import dev.golgolex.quala.netty5.event.ServerChannelAuthorizieEvent;
-import dev.golgolex.quala.netty5.event.ServerChannelInactiveEvent;
+import dev.golgolex.quala.event.registry.EventTarget;
+import dev.golgolex.quala.netty5.basic.event.ServerChannelAuthorizieEvent;
+import dev.golgolex.quala.netty5.basic.event.ServerChannelInactiveEvent;
 import lombok.AllArgsConstructor;
 
 import java.net.InetSocketAddress;
-import java.util.logging.Level;
 
 @AllArgsConstructor
 public final class InstanceEventHandler {

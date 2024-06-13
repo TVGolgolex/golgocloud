@@ -1,7 +1,7 @@
 package dev.golgolex.golgocloud.common.instance;
 
-import dev.golgolex.quala.netty5.protocol.buffer.BufferClass;
-import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.BufferClass;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

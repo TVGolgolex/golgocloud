@@ -1,9 +1,9 @@
 package dev.golgolex.golgocloud.common.group;
 
 import dev.golgolex.golgocloud.common.service.ServiceEnvironment;
-import dev.golgolex.quala.json.document.JsonDocument;
-import dev.golgolex.quala.netty5.protocol.buffer.BufferClass;
-import dev.golgolex.quala.netty5.protocol.buffer.CodecBuffer;
+import dev.golgolex.quala.common.json.JsonDocument;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.BufferClass;
+import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
