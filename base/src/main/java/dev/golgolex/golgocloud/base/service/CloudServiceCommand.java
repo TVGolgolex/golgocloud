@@ -25,7 +25,7 @@ public final class CloudServiceCommand {
             CloudBase.instance().logger().info(groupInfo);
 
             services.forEach(service -> {
-                String serviceInfo = String.format(" &2- &3%s &2(&1uuid=%s&2;&1port=%s&2;&1template=%s&2)",
+                var serviceInfo = String.format(" &2- &3%s &2(&1uuid=%s&2;&1port=%s&2;&1template=%s&2)",
                         service.id(), service.uuid(), service.port(), service.template());
                 CloudBase.instance().logger().info(serviceInfo);
             });

@@ -94,7 +94,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     }
 
     public CloudService constructService(@NotNull CloudGroup cloudGroup) {
-        int id = 1;
+        var id = 1;
 
         var usedNumbers = this.runningAndWaiting(cloudGroup.name()).stream().map(CloudService::serviceNumber).toList();
         while (usedNumbers.contains(id)) {
@@ -177,8 +177,8 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     }
 
     private <T> List<T> resetList(@NotNull List<T> list, Predicate<T> filter) {
-        var arrayList = new ArrayList<>(list);
-        arrayList.removeIf(filter);
-        return arrayList;
+        return new ArrayList<>(list) {{
+            removeIf(filter);
+        }};
     }
 }

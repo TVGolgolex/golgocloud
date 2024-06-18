@@ -7,6 +7,7 @@ import dev.golgolex.golgocloud.base.configuration.*;
 import dev.golgolex.golgocloud.base.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.base.instance.CloudInstanceProviderImpl;
 import dev.golgolex.golgocloud.base.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.base.serverbranding.ServerBrandingServiceImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceCommand;
 import dev.golgolex.golgocloud.base.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.base.service.CloudServiceWorkerThread;
@@ -55,6 +56,7 @@ public final class CloudBase {
     private final CloudServiceProviderImpl serviceProvider;
     private final CloudTemplateProviderImpl templateProvider;
     private final CloudPlayerProviderImpl playerProvider;
+    private final ServerBrandingServiceImpl serverBrandingService;
     private final Scheduler scheduler = new Scheduler(50);
 
     public CloudBase() throws IOException, NoSuchFieldException, IllegalAccessException {
@@ -94,6 +96,7 @@ public final class CloudBase {
         this.serviceProvider = new CloudServiceProviderImpl();
         this.templateProvider = new CloudTemplateProviderImpl();
         this.playerProvider = new CloudPlayerProviderImpl(this.baseDirectory);
+        this.serverBrandingService = new ServerBrandingServiceImpl();
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
@@ -101,7 +104,8 @@ public final class CloudBase {
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
                 new GroupsConfiguration(this.configurationService.configurationDirectory()),
                 new TemplateConfiguration(this.configurationService.configurationDirectory()),
-                new DatabaseConfiguration(this.configurationService.configurationDirectory())
+                new DatabaseConfiguration(this.configurationService.configurationDirectory()),
+                new ServerBrandingConfiguration(this.configurationService.configurationDirectory())
         );
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 
@@ -135,6 +139,7 @@ public final class CloudBase {
         this.groupProvider.reloadGroups();
         this.templateProvider.reloadTemplates();
         this.playerProvider.reloadPlayers();
+        this.serverBrandingService.reloadStyles();
 
         var schedulerThread = new Thread(this.scheduler);
         schedulerThread.setDaemon(true);
@@ -147,9 +152,11 @@ public final class CloudBase {
         for (var configuration : this.configurationService.configurations()) {
             configuration.reload();
         }
+
         this.groupProvider.reloadGroups();
         this.templateProvider.reloadTemplates();
         this.playerProvider.reloadPlayers();
+        this.serverBrandingService.reloadStyles();
     }
 
     public void shutdown(boolean shutdownCycle) {

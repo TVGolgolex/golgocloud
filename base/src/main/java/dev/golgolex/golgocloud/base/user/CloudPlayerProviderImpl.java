@@ -51,6 +51,7 @@ public class CloudPlayerProviderImpl implements CloudPlayerProvider {
                     CloudPlayer cloudPlayer = JsonDocument.fromFile(file).readObject("cloudPlayer", new TypeToken<CloudPlayer>() {
                     }.getType());
 
+                    // todo check if player is online
                     if (cloudPlayer.onlineCredentials() != null) {
                         cloudPlayer.onlineCredentials(null);
                     }
