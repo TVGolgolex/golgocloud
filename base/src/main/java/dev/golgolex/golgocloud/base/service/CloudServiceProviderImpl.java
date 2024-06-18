@@ -48,6 +48,7 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
     public void shutdownService(@NotNull CloudService cloudService) {
         CloudBase.instance().logger().info("Service &2'&3" + cloudService.id() + "&2' &1was stopped");
         this.cloudServices = this.resetList(this.cloudServices, it -> it.id().equalsIgnoreCase(cloudService.id()));
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
 
         for (var cloudPlayer : CloudBase.instance().playerProvider().cloudPlayers()) {
             if (cloudPlayer.onlineCredentials() != null
@@ -56,8 +57,6 @@ public final class CloudServiceProviderImpl implements CloudServiceProvider {
                 CloudBase.instance().playerProvider().addToLogoutQueue(cloudPlayer);
             }
         }
-
-        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudServiceShutdownPacket(cloudService), networkChannel -> networkChannel.channelIdentity().uniqueId().equals(cloudService.uuid()));
     }
 
     public void startedService(@NotNull CloudService cloudService) {

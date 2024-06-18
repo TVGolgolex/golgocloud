@@ -9,9 +9,11 @@ import dev.golgolex.golgocloud.common.service.CloudService;
 import dev.golgolex.golgocloud.common.service.ServiceLifeCycle;
 import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnectionHandler;
+import dev.golgolex.golgocloud.plugin.paper.commands.CommandJoin;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperAsyncPlayerPreLoginListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerLoginListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerQuitListener;
+import dev.golgolex.quala.command.PaperCommandService;
 import dev.golgolex.quala.common.json.JsonDocument;
 import dev.golgolex.quala.netty5.basic.ChannelIdentity;
 import lombok.Getter;
@@ -37,6 +39,7 @@ public class CloudPaperPlugin extends JavaPlugin {
     private String thisServiceId;
     private String thisGroupName;
     private ServerToServerConnectionHandler playerConnectionHandler;
+    private PaperCommandService paperCommandService;
 
     @Override
     public void onLoad() {
@@ -58,6 +61,8 @@ public class CloudPaperPlugin extends JavaPlugin {
             case SERVER_TO_SERVER -> new ServerToServerConnectionHandler();
             case PROXY -> null;
         };
+        this.paperCommandService = new PaperCommandService(this);
+        this.paperCommandService.registerCommand(new CommandJoin());
 
         new CloudAPI(
                 new ChannelIdentity(cloudService.id(), cloudService.uuid()),
