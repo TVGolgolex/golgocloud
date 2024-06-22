@@ -103,8 +103,7 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                     .serverBrandingService()
                     .loadedBrands()
                     .stream()
-                    .filter(serverBrandStyle ->
-                    serverBrandStyle.domain().equalsIgnoreCase(domain + "." + tld))
+                    .filter(serverBrandStyle -> serverBrandStyle.domain().equalsIgnoreCase(domain + "." + tld))
                     .findFirst()
                     .orElse(CloudAPI.instance().serverBrandingService().anyDefault());
         }
