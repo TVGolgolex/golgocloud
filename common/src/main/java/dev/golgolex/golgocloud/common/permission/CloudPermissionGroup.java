@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,5 +24,18 @@ public class CloudPermissionGroup extends CloudPermissible {
     }
 
 
+    @Override
+    public PermissionCheckResult hasPermission(@NotNull String permission) {
+        return null;
+    }
 
+    @Override
+    public void addPermission(@NotNull String permission) {
+
+    }
+
+    @Override
+    public void removePermission(@NotNull String permission) {
+
+    }
 }

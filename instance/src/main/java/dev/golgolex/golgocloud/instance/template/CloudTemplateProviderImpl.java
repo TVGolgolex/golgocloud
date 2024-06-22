@@ -126,8 +126,8 @@ public final class CloudTemplateProviderImpl implements CloudTemplateProvider {
      * @param source the CloudService instance to copy files from
      */
     public void copyFiles(@NotNull CloudService source) {
-        this.copyFilesFromEvery(source);
         this.copyTemplatesFiles(source);
+        this.copyFilesFromEvery(source);
     }
 
     /**
@@ -137,12 +137,12 @@ public final class CloudTemplateProviderImpl implements CloudTemplateProvider {
      * @throws RuntimeException if an {@link IOException} occurs during file copying
      */
     public void copyFilesFromEvery(@NotNull CloudService source) {
-        var everyTemplateDirectory = new File(this.everyTemplateDirectory.toString(), source.template());
+        /*var everyTemplateDirectory = new File(this.everyTemplateDirectory.toString(), source.template());
         try {
             FileHelper.copyFilesInDirectory(everyTemplateDirectory, Path.of(source.path()).toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
 
         switch (source.environment()) {
             case SERVER -> {

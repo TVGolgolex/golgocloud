@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class CloudPermissible implements BufferClass {
-    
+
     private UUID id;
     private List<Permission> permissions;
     private JsonDocument meta;
@@ -45,4 +45,9 @@ public abstract class CloudPermissible implements BufferClass {
         return this.permissions.stream().anyMatch(it -> it.value().equalsIgnoreCase(permission));
     }
 
+    public abstract PermissionCheckResult hasPermission(@NotNull String permission);
+
+    public abstract void addPermission(@NotNull String permission);
+
+    public abstract void removePermission(@NotNull String permission);
 }

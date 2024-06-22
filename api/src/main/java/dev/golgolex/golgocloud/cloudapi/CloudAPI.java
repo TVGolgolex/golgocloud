@@ -26,6 +26,7 @@ import dev.golgolex.quala.netty5.basic.InactiveAction;
 import dev.golgolex.quala.netty5.basic.NetworkCodec;
 import dev.golgolex.quala.netty5.basic.client.NettyClient;
 import dev.golgolex.quala.translation.basic.DefaultTranslationAPI;
+import dev.golgolex.quala.translation.basic.MessageRepository;
 import dev.golgolex.quala.translation.basic.TranslationAPI;
 import lombok.Getter;
 import lombok.experimental.Accessors;
