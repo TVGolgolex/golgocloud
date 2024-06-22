@@ -11,6 +11,7 @@ import dev.golgolex.golgocloud.common.service.environment.CloudServerService;
 import dev.golgolex.golgocloud.plugin.connection.ServerToServerConnectionHandler;
 import dev.golgolex.golgocloud.plugin.paper.commands.CommandJoin;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperAsyncPlayerPreLoginListener;
+import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerJoinListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerLoginListener;
 import dev.golgolex.golgocloud.plugin.paper.listener.CloudPaperPlayerQuitListener;
 import dev.golgolex.quala.command.PaperCommandService;
@@ -89,6 +90,7 @@ public class CloudPaperPlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new CloudPaperAsyncPlayerPreLoginListener(CloudAPI.instance(), this), this);
         Bukkit.getPluginManager().registerEvents(new CloudPaperPlayerLoginListener(CloudAPI.instance(), this), this);
+        Bukkit.getPluginManager().registerEvents(new CloudPaperPlayerJoinListener(CloudAPI.instance(), this), this);
         Bukkit.getPluginManager().registerEvents(new CloudPaperPlayerQuitListener(CloudAPI.instance(), this), this);
     }
 

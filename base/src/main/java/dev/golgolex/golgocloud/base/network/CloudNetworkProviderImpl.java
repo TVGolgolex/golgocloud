@@ -1,40 +1,36 @@
 package dev.golgolex.golgocloud.base.network;
 
 import dev.golgolex.golgocloud.base.configuration.packets.CloudConfigurationRequestPacketReceiver;
-import dev.golgolex.golgocloud.base.group.packet.CloudGroupCreatePacketReceiver;
-import dev.golgolex.golgocloud.base.group.packet.CloudGroupDeletePacketReceiver;
-import dev.golgolex.golgocloud.base.group.packet.CloudGroupUpdatePacketReceiver;
-import dev.golgolex.golgocloud.base.group.packet.CloudGroupsRequestPacketReceiver;
-import dev.golgolex.golgocloud.base.instance.packet.CloudInstancesRequestPacketReceiver;
-import dev.golgolex.golgocloud.base.instance.packet.InstanceAuthReceiver;
-import dev.golgolex.golgocloud.base.instance.packet.InstanceUpdatePacketReceiver;
+import dev.golgolex.golgocloud.base.group.packets.CloudGroupCreatePacketReceiver;
+import dev.golgolex.golgocloud.base.group.packets.CloudGroupDeletePacketReceiver;
+import dev.golgolex.golgocloud.base.group.packets.CloudGroupUpdatePacketReceiver;
+import dev.golgolex.golgocloud.base.group.packets.CloudGroupsRequestPacketReceiver;
+import dev.golgolex.golgocloud.base.instance.packets.CloudInstancesRequestPacketReceiver;
+import dev.golgolex.golgocloud.base.instance.packets.InstanceAuthReceiver;
+import dev.golgolex.golgocloud.base.instance.packets.InstanceUpdatePacketReceiver;
+import dev.golgolex.golgocloud.base.serverbranding.packets.ServerBrandRequestPacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceShutdownPacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceStartedPacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceUpdatePacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServicesRequestPacketReceiver;
 import dev.golgolex.golgocloud.base.template.packets.CloudServiceTemplatesRequestPacketReceiver;
-import dev.golgolex.golgocloud.base.user.packets.CloudPlayerCreatePacketReceiver;
-import dev.golgolex.golgocloud.base.user.packets.CloudPlayerLoginPacketReceiver;
-import dev.golgolex.golgocloud.base.user.packets.CloudPlayerLogoutPacketReceiver;
-import dev.golgolex.golgocloud.base.user.packets.CloudPlayersRequestPacketReceiver;
+import dev.golgolex.golgocloud.base.user.packets.*;
 import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationRequestPacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupCreatePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupDeletePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupUpdatePacket;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupsRequestPacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesRequestPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceAuthPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceUpdatePacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstancesRequestPacket;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
+import dev.golgolex.golgocloud.common.serverbranding.packets.ServerBrandRequestPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceUpdatePacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServicesRequestPacket;
 import dev.golgolex.golgocloud.common.template.packets.CloudServiceTemplatesRequestPacket;
-import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCreatePacket;
-import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
-import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
-import dev.golgolex.golgocloud.common.user.packets.CloudPlayersRequestPacket;
+import dev.golgolex.golgocloud.common.user.packets.*;
 import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiverManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,6 +54,7 @@ public final class CloudNetworkProviderImpl implements CloudNetworkProvider {
         registry.registerPacketHandler(CloudPlayerLoginPacket.class, CloudPlayerLoginPacketReceiver.class);
         registry.registerPacketHandler(CloudPlayerLogoutPacket.class, CloudPlayerLogoutPacketReceiver.class);
         registry.registerPacketHandler(CloudPlayersRequestPacket.class, CloudPlayersRequestPacketReceiver.class);
+        registry.registerPacketHandler(CloudPlayerUpdatePacket.class, CloudPlayerUpdatePacketReceiver.class);
 
         // template packets
         registry.registerPacketHandler(CloudServiceTemplatesRequestPacket.class, CloudServiceTemplatesRequestPacketReceiver.class);
@@ -70,5 +67,8 @@ public final class CloudNetworkProviderImpl implements CloudNetworkProvider {
         registry.registerPacketHandler(CloudServiceShutdownPacket.class, CloudServiceShutdownPacketReceiver.class);
         registry.registerPacketHandler(CloudServicesRequestPacket.class, CloudServicesRequestPacketReceiver.class);
         registry.registerPacketHandler(CloudServiceUpdatePacket.class, CloudServiceUpdatePacketReceiver.class);
+
+        // serverbrand packets
+        registry.registerPacketHandler(ServerBrandRequestPacket.class, ServerBrandRequestPacketReceiver.class);
     }
 }

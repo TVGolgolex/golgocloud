@@ -14,7 +14,7 @@ import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
 import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiverManager;
 import org.jetbrains.annotations.NotNull;
 
-public class CloudNetworkProviderImpl implements CloudNetworkProvider {
+public final class CloudNetworkProviderImpl implements CloudNetworkProvider {
     @Override
     public void initPacketReceivers(@NotNull PacketReceiverManager registry) {
         // service packets

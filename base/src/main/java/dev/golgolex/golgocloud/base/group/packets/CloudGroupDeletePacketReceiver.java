@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.base.group.packet;
+package dev.golgolex.golgocloud.base.group.packets;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.group.packets.CloudGroupDeletePacket;

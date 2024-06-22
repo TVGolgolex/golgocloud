@@ -6,6 +6,7 @@ import dev.golgolex.golgocloud.cloudapi.configuration.NetworkConfiguration;
 import dev.golgolex.golgocloud.cloudapi.group.CloudGroupProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.instance.CloudInstanceProviderIpl;
 import dev.golgolex.golgocloud.cloudapi.network.CloudNetworkProviderImpl;
+import dev.golgolex.golgocloud.cloudapi.serverbranding.ServerBrandingServiceImpl;
 import dev.golgolex.golgocloud.cloudapi.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.cloudapi.user.CloudPlayerProviderImpl;
@@ -16,6 +17,7 @@ import dev.golgolex.golgocloud.common.configuration.packets.CloudConfigurationRe
 import dev.golgolex.golgocloud.common.group.CloudGroupProvider;
 import dev.golgolex.golgocloud.common.instance.CloudInstanceProvider;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
+import dev.golgolex.golgocloud.common.serverbranding.ServerBrandingService;
 import dev.golgolex.golgocloud.common.service.CloudServiceProvider;
 import dev.golgolex.golgocloud.common.template.CloudTemplateProvider;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
@@ -32,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * The CloudAPI class is the entry point for interacting with the cloud system.
@@ -43,6 +46,10 @@ public class CloudAPI {
 
     @Getter
     private static volatile CloudAPI instance;
+    public static final Pattern IP_PATTERN = Pattern.compile(
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
+                    "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    );
 
     private final Logger logger;
     private final ConfigurationService configurationService;
@@ -52,6 +59,7 @@ public class CloudAPI {
     private final CloudTemplateProvider cloudTemplateProvider;
     private final CloudInstanceProvider cloudInstanceProvider;
     private final CloudPlayerProvider cloudPlayerProvider;
+    private final ServerBrandingService serverBrandingService;
     private final NettyClient nettyClient;
     @ApiStatus.Internal
     private MongoDatabase mongoDatabase;
@@ -72,6 +80,7 @@ public class CloudAPI {
         this.cloudTemplateProvider = new CloudTemplateProviderImpl();
         this.cloudInstanceProvider = new CloudInstanceProviderIpl();
         this.cloudPlayerProvider = new CloudPlayerProviderImpl();
+        this.serverBrandingService = new ServerBrandingServiceImpl();
 
         this.nettyClient = new NettyClient(identity, InactiveAction.RETRY, NetworkCodec.OSGAN, future -> {
             if (future.isSuccess()) {
@@ -96,6 +105,7 @@ public class CloudAPI {
         this.cloudTemplateProvider.reloadTemplates();
         this.cloudInstanceProvider.reloadInstances();
         this.cloudPlayerProvider.reloadPlayers();
+        this.serverBrandingService.reloadStyles();
 
         CloudConfigurationReplyPacket replyPacket = this.nettyClient.thisNetworkChannel().sendQuery(new CloudConfigurationRequestPacket("database"));
 

@@ -1,8 +1,8 @@
-package dev.golgolex.golgocloud.base.instance.packet;
+package dev.golgolex.golgocloud.base.instance.packets;
 
 import dev.golgolex.golgocloud.base.CloudBase;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesReplyPacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstancesRequestPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstancesReplyPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstancesRequestPacket;
 import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
 import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;
 

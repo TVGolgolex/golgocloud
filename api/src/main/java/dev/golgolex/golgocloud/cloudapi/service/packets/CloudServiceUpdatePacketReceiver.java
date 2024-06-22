@@ -13,7 +13,7 @@ import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;
 
 import java.util.ArrayList;
 
-public class CloudServiceUpdatePacketReceiver extends PacketReceiver<CloudServiceUpdatePacket> {
+public final class CloudServiceUpdatePacketReceiver extends PacketReceiver<CloudServiceUpdatePacket> {
     @Override
     public void receivePacket(CloudServiceUpdatePacket packet, NetworkChannel networkChannel) {
         EventRegistry.call(new CloudServiceUpdateEvent(packet.cloudService()));

@@ -18,6 +18,7 @@ import java.util.UUID;
 public class ServerBrandStyle implements BufferClass {
 
     private String name;
+    private String domain;
     private UUID uuid;
     private JsonDocument properties;
     private long pings;
@@ -26,6 +27,7 @@ public class ServerBrandStyle implements BufferClass {
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
         codecBuffer.writeString(this.name);
+        codecBuffer.writeString(this.domain);
         codecBuffer.writeUniqueId(this.uuid);
         codecBuffer.writeDocument(this.properties);
         codecBuffer.writeLong(this.pings);
@@ -35,6 +37,7 @@ public class ServerBrandStyle implements BufferClass {
     @Override
     public void readBuffer(@NotNull CodecBuffer codecBuffer) {
         this.name = codecBuffer.readString();
+        this.domain = codecBuffer.readString();
         this.uuid = codecBuffer.readUniqueId();
         this.properties = codecBuffer.readDocument();
         this.pings = codecBuffer.readLong();

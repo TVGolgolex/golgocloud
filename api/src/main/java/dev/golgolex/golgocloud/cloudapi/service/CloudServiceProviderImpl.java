@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Accessors(fluent = true)
-public class CloudServiceProviderImpl implements CloudServiceProvider {
+public final class CloudServiceProviderImpl implements CloudServiceProvider {
 
     private final List<CloudService> cloudServices = new ArrayList<>();
 

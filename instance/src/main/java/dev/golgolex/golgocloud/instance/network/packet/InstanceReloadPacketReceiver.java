@@ -1,6 +1,6 @@
 package dev.golgolex.golgocloud.instance.network.packet;
 
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceReloadPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceReloadPacket;
 import dev.golgolex.golgocloud.instance.CloudInstance;
 import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
 import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;

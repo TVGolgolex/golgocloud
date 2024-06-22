@@ -18,7 +18,7 @@ public class ServerBrandingConfiguration extends ConfigurationClass {
 
     @Override
     public JsonDocument defaultConfiguration() {
-        return new JsonDocument().write("styles", List.of(new ServerBrandStyle("default", UUID.randomUUID(), new JsonDocument().write("custom$", "#f5b72f").write("alternativ$", "&6"), 0L, true)));
+        return new JsonDocument().write("styles", List.of(new ServerBrandStyle("default", "your-domain.de", UUID.randomUUID(), new JsonDocument().write("custom$", "#f5b72f").write("alternativ$", "&6"), 0L, true)));
     }
 
     public List<ServerBrandStyle> serverBrandStyles() {

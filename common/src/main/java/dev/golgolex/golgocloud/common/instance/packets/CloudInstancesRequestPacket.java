@@ -1,4 +1,4 @@
-package dev.golgolex.golgocloud.common.instance.packet;
+package dev.golgolex.golgocloud.common.instance.packets;
 
 import dev.golgolex.quala.netty5.basic.protocol.Packet;
 import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;

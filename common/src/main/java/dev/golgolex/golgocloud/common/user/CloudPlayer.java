@@ -35,7 +35,11 @@ public class CloudPlayer implements BufferClass {
     private List<String> hosts;
     private List<String> names;
 
+    @ApiStatus.Internal
+    @Setter
     private String language;
+    @ApiStatus.Internal
+    @Setter
     private String branding;
 
     @ApiStatus.Internal

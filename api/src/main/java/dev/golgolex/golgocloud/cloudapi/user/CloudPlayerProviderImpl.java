@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
-public class CloudPlayerProviderImpl implements CloudPlayerProvider {
+public final class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     private final List<CloudPlayer> cloudPlayers = new ArrayList<>();
 

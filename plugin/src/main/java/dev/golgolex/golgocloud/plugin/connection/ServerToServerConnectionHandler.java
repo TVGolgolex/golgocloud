@@ -1,15 +1,19 @@
 package dev.golgolex.golgocloud.plugin.connection;
 
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.common.serverbranding.ServerBrandStyle;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.OnlineCredentials;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerTransferredPacket;
 import dev.golgolex.golgocloud.plugin.paper.CloudPaperPlugin;
+import dev.golgolex.golgocloud.plugin.paper.event.CloudPaperPlayerLoginEvent;
 import dev.golgolex.quala.common.json.JsonDocument;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-public class ServerToServerConnectionHandler implements PlayerConnectionHandler<PlayerLoginEvent, PlayerQuitEvent, Player> {
+public class ServerToServerConnectionHandler implements PlayerConnectionHandler<PlayerLoginEvent, PlayerQuitEvent, PlayerJoinEvent, Player> {
     @Override
     public void login(@NotNull PlayerLoginEvent event, @NotNull Player player, Object... sub) {
         if (player.isTransferred()) {
@@ -76,6 +80,38 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
             cloudPlayer.onlineCredentials(credentials);
             CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerLoginPacket(cloudPlayer));
         }, () -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cNo server group could be found§8. §cIncorrect loading could be the cause§8.")));
+    }
+
+    @Override
+    public void finalJoin(@NotNull PlayerJoinEvent event, @NotNull Player player, Object... sub) {
+        var cloudPlayer = CloudAPI.instance().cloudPlayerProvider().cloudPlayer(player.getUniqueId());
+
+        if (cloudPlayer.onlineCredentials() == null) {
+            System.out.println("non onlineCredentials");
+            return;
+        }
+
+        ServerBrandStyle style;
+        if (event.getPlayer().getVirtualHost() == null || (CloudAPI.IP_PATTERN.matcher(event.getPlayer().getVirtualHost().getHostString()).matches())) {
+            style = CloudAPI.instance().serverBrandingService().anyDefault();
+        } else {
+            var hostString = event.getPlayer().getVirtualHost().getHostString();
+            var split = hostString.split("\\.");
+            var domain = split[split.length - 2];
+            var tld = split[split.length - 1];
+            style = CloudAPI.instance()
+                    .serverBrandingService()
+                    .loadedBrands()
+                    .stream()
+                    .filter(serverBrandStyle ->
+                    serverBrandStyle.domain().equalsIgnoreCase(domain + "." + tld))
+                    .findFirst()
+                    .orElse(CloudAPI.instance().serverBrandingService().anyDefault());
+        }
+
+        cloudPlayer.branding(style.name());
+        Bukkit.getPluginManager().callEvent(new CloudPaperPlayerLoginEvent(event, cloudPlayer));
+        CloudAPI.instance().cloudPlayerProvider().updateCloudPlayer(cloudPlayer);
     }
 
     @Override

@@ -1,7 +1,7 @@
-package dev.golgolex.golgocloud.base.instance.packet;
+package dev.golgolex.golgocloud.base.instance.packets;
 
 import dev.golgolex.golgocloud.base.CloudBase;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceAuthPacket;
 import dev.golgolex.quala.netty5.basic.channel.NetworkChannel;
 import dev.golgolex.quala.netty5.basic.protocol.receiver.PacketReceiver;
 

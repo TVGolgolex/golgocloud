@@ -1,8 +1,8 @@
 package dev.golgolex.golgocloud.instance.network;
 
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceAuthReplyPacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceReloadPacket;
-import dev.golgolex.golgocloud.common.instance.packet.CloudInstanceUpdatePacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceAuthReplyPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceReloadPacket;
+import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceUpdatePacket;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
 import dev.golgolex.golgocloud.common.service.packets.CloudServicePreparePacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;

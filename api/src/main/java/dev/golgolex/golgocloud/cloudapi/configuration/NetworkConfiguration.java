@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-public class NetworkConfiguration extends ConfigurationClass {
+public final class NetworkConfiguration extends ConfigurationClass {
 
     public NetworkConfiguration(@NotNull File configurationDirectory) {
         super("network", configurationDirectory);
