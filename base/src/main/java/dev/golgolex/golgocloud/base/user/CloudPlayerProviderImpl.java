@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Accessors(fluent = true)
-public class CloudPlayerProviderImpl implements CloudPlayerProvider {
+public final class CloudPlayerProviderImpl implements CloudPlayerProvider {
 
     private final File databaseDirectory;
     private final List<CloudPlayer> cloudPlayers = new ArrayList<>();

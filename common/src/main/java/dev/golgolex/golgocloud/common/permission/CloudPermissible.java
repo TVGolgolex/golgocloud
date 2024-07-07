@@ -7,11 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
@@ -19,35 +19,43 @@ import java.util.UUID;
 @NoArgsConstructor
 public abstract class CloudPermissible implements BufferClass {
 
-    private UUID id;
-    private List<Permission> permissions;
-    private JsonDocument meta;
+    private JsonDocument properties;
+    private List<CloudPermission> activePermissions = new ArrayList<>();
 
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
-        codecBuffer.writeUniqueId(id);
-        codecBuffer.writeList(permissions, (it, permission) -> permission.writeBuffer(it));
-        codecBuffer.writeDocument(meta);
+        codecBuffer.writeDocument(this.properties);
+        codecBuffer.writeList(this.activePermissions, CodecBuffer::writeBufferClass);
     }
 
     @Override
     public void readBuffer(@NotNull CodecBuffer codecBuffer) {
-        id = codecBuffer.readUniqueId();
-        permissions = codecBuffer.readList(new ArrayList<>(), () -> {
-            var permission = new Permission();
-            permission.readBuffer(codecBuffer);
-            return permission;
-        });
-        meta = codecBuffer.readDocument();
+        this.properties = codecBuffer.readDocument();
+        this.activePermissions = codecBuffer.readList(new ArrayList<>(), () -> codecBuffer.readBufferClass(new CloudPermission()));
     }
 
-    public boolean containsPermission(@NotNull String permission) {
-        return this.permissions.stream().anyMatch(it -> it.value().equalsIgnoreCase(permission));
+    public CloudPermission permission(@NotNull String permissionKey) {
+        return this.activePermissions.stream().filter(cloudPermission -> cloudPermission.permissionKey().equalsIgnoreCase(permissionKey)).findFirst().orElse(null);
     }
 
-    public abstract PermissionCheckResult hasPermission(@NotNull String permission);
+    public void addPermission(@NotNull CloudPermission permission) {
+        if (this.activePermissions.stream().anyMatch(cloudPermission -> cloudPermission.equals(permission))) {
+            this.activePermissions.removeIf(cloudPermission -> cloudPermission.equals(permission));
+        }
+        this.activePermissions.add(permission);
+    }
 
-    public abstract void addPermission(@NotNull String permission);
+    public void removePermission(@NotNull CloudPermission permission) {
+        this.activePermissions.removeIf(cloudPermission -> cloudPermission.equals(permission));
+    }
 
-    public abstract void removePermission(@NotNull String permission);
+    @ApiStatus.Internal
+    public PermissionCheckResult permissionCheckResult(@NotNull CloudPermission permission) {
+        return PermissionCheckResult.fromBoolean(this.activePermissions.stream().anyMatch(cloudPermission -> cloudPermission.equals(permission)));
+    }
+
+    @ApiStatus.Internal
+    public PermissionCheckResult permissionCheckResult(@NotNull String permission) {
+        return PermissionCheckResult.fromBoolean(this.activePermissions.stream().anyMatch(cloudPermission -> cloudPermission.permissionKey().equalsIgnoreCase(permission)));
+    }
 }

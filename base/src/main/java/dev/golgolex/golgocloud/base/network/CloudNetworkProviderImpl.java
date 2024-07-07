@@ -8,6 +8,7 @@ import dev.golgolex.golgocloud.base.group.packets.CloudGroupsRequestPacketReceiv
 import dev.golgolex.golgocloud.base.instance.packets.CloudInstancesRequestPacketReceiver;
 import dev.golgolex.golgocloud.base.instance.packets.InstanceAuthReceiver;
 import dev.golgolex.golgocloud.base.instance.packets.InstanceUpdatePacketReceiver;
+import dev.golgolex.golgocloud.base.permission.packets.*;
 import dev.golgolex.golgocloud.base.serverbranding.packets.ServerBrandRequestPacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceShutdownPacketReceiver;
 import dev.golgolex.golgocloud.base.service.packets.CloudServiceStartedPacketReceiver;
@@ -24,6 +25,7 @@ import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceAuthPacket;
 import dev.golgolex.golgocloud.common.instance.packets.CloudInstanceUpdatePacket;
 import dev.golgolex.golgocloud.common.instance.packets.CloudInstancesRequestPacket;
 import dev.golgolex.golgocloud.common.network.CloudNetworkProvider;
+import dev.golgolex.golgocloud.common.permission.packets.*;
 import dev.golgolex.golgocloud.common.serverbranding.packets.ServerBrandRequestPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceShutdownPacket;
 import dev.golgolex.golgocloud.common.service.packets.CloudServiceStartedPacket;
@@ -70,5 +72,12 @@ public final class CloudNetworkProviderImpl implements CloudNetworkProvider {
 
         // serverbrand packets
         registry.registerPacketHandler(ServerBrandRequestPacket.class, ServerBrandRequestPacketReceiver.class);
+
+        // permission packets
+        registry.registerPacketHandler(CloudPermissionPoolReloadPacket.class, CloudPermissionPoolReloadPacketReceiver.class);
+        registry.registerPacketHandler(CloudPermissionPoolsReloadPacket.class, CloudPermissionPoolsReloadPacketReceiver.class);
+        registry.registerPacketHandler(CloudPermissionPoolCreatePacket.class, CloudPermissionPoolCreatePacketReceiver.class);
+        registry.registerPacketHandler(CloudPermissionPoolUpdatePacket.class, CloudPermissionPoolUpdatePacketReceiver.class);
+        registry.registerPacketHandler(CloudPermissionPoolDeletePacket.class, CloudPermissionPoolDeletePacketReceiver.class);
     }
 }

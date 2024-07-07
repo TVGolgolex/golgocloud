@@ -1,6 +1,8 @@
 package dev.golgolex.golgocloud.plugin.connection;
 
 import dev.golgolex.golgocloud.cloudapi.CloudAPI;
+import dev.golgolex.golgocloud.common.permission.CloudPermissibleEntity;
+import dev.golgolex.golgocloud.common.permission.CloudPermissibleGroup;
 import dev.golgolex.golgocloud.common.serverbranding.ServerBrandStyle;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.OnlineCredentials;
@@ -9,6 +11,7 @@ import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLogoutPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerTransferredPacket;
 import dev.golgolex.golgocloud.plugin.paper.CloudPaperPlugin;
 import dev.golgolex.golgocloud.plugin.paper.event.CloudPaperPlayerLoginEvent;
+import dev.golgolex.golgocloud.plugin.paper.permission.PaperPermissionHelper;
 import dev.golgolex.quala.common.json.JsonDocument;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -53,7 +56,6 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
             );
 
             var cloudPlayer = CloudAPI.instance().cloudPlayerProvider().cloudPlayer(player.getUniqueId());
-
             if (cloudPlayer != null && cloudPlayer.onlineCredentials() != null) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cYou are already connected to the network.§8."));
                 return;
@@ -77,6 +79,44 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                 );
                 CloudAPI.instance().cloudPlayerProvider().createCloudPlayer(cloudPlayer);
             }
+
+            var permissionPool = CloudAPI.instance().cloudPermissionService().permissionPool("cloud");
+            if (permissionPool != null) {
+                var entity = permissionPool.permissibleEntity(player.getUniqueId());
+                if (entity == null) {
+                    entity = new CloudPermissibleEntity(new JsonDocument(), new ArrayList<>(), player.getUniqueId(), new ArrayList<>());
+                    entity.groupEntries().add(new CloudPermissibleEntity.GroupEntry(
+                            permissionPool.permissibleGroups().stream().filter(CloudPermissibleGroup::fallbackOption).map(CloudPermissibleGroup::name).findAny().orElse(null),
+                            System.currentTimeMillis(),
+                            -1L,
+                            1
+                    ));
+                    permissionPool.createPermissible(entity);
+                    CloudAPI.instance().cloudPermissionService().updatePermissionPool(permissionPool);
+                } else {
+                    var finalEntity = entity;
+                    entity.groupEntries()
+                            .stream()
+                            .filter(groupEntry -> groupEntry.untilTimestamp() < System.currentTimeMillis())
+                            .findFirst()
+                            .ifPresent(groupEntry -> {
+                                finalEntity.groupEntries().removeIf(it -> it.name().equalsIgnoreCase(groupEntry.name()));
+
+                                if (finalEntity.groupEntries().isEmpty()) {
+                                    finalEntity.groupEntries().add(new CloudPermissibleEntity.GroupEntry(
+                                            permissionPool.permissibleGroups().stream().filter(CloudPermissibleGroup::fallbackOption).map(CloudPermissibleGroup::name).findAny().orElse(null),
+                                            System.currentTimeMillis(),
+                                            -1L,
+                                            1
+                                    ));
+                                }
+
+                                permissionPool.updatePermissible(finalEntity);
+                            });
+                }
+                PaperPermissionHelper.injectPlayer(player, permissionPool);
+            }
+
             cloudPlayer.onlineCredentials(credentials);
             CloudAPI.instance().nettyClient().thisNetworkChannel().sendPacket(new CloudPlayerLoginPacket(cloudPlayer));
         }, () -> event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("§cNo server group could be found§8. §cIncorrect loading could be the cause§8.")));
@@ -87,7 +127,7 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
         var cloudPlayer = CloudAPI.instance().cloudPlayerProvider().cloudPlayer(player.getUniqueId());
 
         if (cloudPlayer.onlineCredentials() == null) {
-            System.out.println("non onlineCredentials");
+            System.out.println("[!] non onlineCredentials");
             return;
         }
 
