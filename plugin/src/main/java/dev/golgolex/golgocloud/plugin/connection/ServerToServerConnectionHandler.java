@@ -97,7 +97,7 @@ public class ServerToServerConnectionHandler implements PlayerConnectionHandler<
                     var finalEntity = entity;
                     entity.groupEntries()
                             .stream()
-                            .filter(groupEntry -> groupEntry.untilTimestamp() < System.currentTimeMillis())
+                            .filter(groupEntry -> groupEntry.untilTimestamp() < System.currentTimeMillis() && groupEntry.untilTimestamp() != -1)
                             .findFirst()
                             .ifPresent(groupEntry -> {
                                 finalEntity.groupEntries().removeIf(it -> it.name().equalsIgnoreCase(groupEntry.name()));
