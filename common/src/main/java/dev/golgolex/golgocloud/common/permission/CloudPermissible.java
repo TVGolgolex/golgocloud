@@ -3,9 +3,7 @@ package dev.golgolex.golgocloud.common.permission;
 import dev.golgolex.quala.common.json.JsonDocument;
 import dev.golgolex.quala.netty5.basic.protocol.buffer.BufferClass;
 import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +13,19 @@ import java.util.List;
 
 @Getter
 @Accessors(fluent = true)
-@AllArgsConstructor
-@NoArgsConstructor
 public abstract class CloudPermissible implements BufferClass {
 
     private JsonDocument properties;
-    private List<CloudPermission> activePermissions = new ArrayList<>();
+    private List<CloudPermission> activePermissions;
+
+    public CloudPermissible(JsonDocument properties, List<CloudPermission> activePermissions) {
+        this.properties = properties;
+        this.activePermissions = activePermissions;
+    }
+
+    public CloudPermissible() {
+        this.activePermissions = new ArrayList<>();
+    }
 
     @Override
     public void writeBuffer(@NotNull CodecBuffer codecBuffer) {
@@ -51,11 +56,16 @@ public abstract class CloudPermissible implements BufferClass {
 
     @ApiStatus.Internal
     public PermissionCheckResult permissionCheckResult(@NotNull CloudPermission permission) {
-        return PermissionCheckResult.fromBoolean(this.activePermissions.stream().anyMatch(cloudPermission -> cloudPermission.equals(permission)));
+        return this.permissionCheckResult(permission.permissionKey());
     }
 
     @ApiStatus.Internal
     public PermissionCheckResult permissionCheckResult(@NotNull String permission) {
-        return PermissionCheckResult.fromBoolean(this.activePermissions.stream().anyMatch(cloudPermission -> cloudPermission.permissionKey().equalsIgnoreCase(permission)));
+        for (var activePermission : this.activePermissions) {
+            if (activePermission.permissionKey().equalsIgnoreCase(permission)) {
+                return PermissionCheckResult.ALLOWED;
+            }
+        }
+        return PermissionCheckResult.DENY;
     }
 }

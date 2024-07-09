@@ -5,7 +5,6 @@ import dev.golgolex.quala.netty5.basic.protocol.buffer.CodecBuffer;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,10 +58,12 @@ public class CloudPermissibleGroup extends CloudPermissible {
             if (this.implementedGroups.stream().noneMatch(s -> s.equalsIgnoreCase(permissibleGroup.name()))) {
                 continue;
             }
-            if (permissibleGroup.permissionCheckResult("*").asBoolean() || permissibleGroup.permissionCheckResult(permission).asBoolean()) {
+            if (permissibleGroup.hasPermission(permissionPool, permission).asBoolean()) {
+                System.out.println("check allow: " + permissibleGroup.name());
                 return PermissionCheckResult.ALLOWED;
             }
         }
+        System.out.println("check deny group");
         return PermissionCheckResult.DENY;
     }
 }

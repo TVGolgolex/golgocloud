@@ -44,8 +44,7 @@ import static dev.golgolex.quala.reflections.advanced.matcher.FieldMatcher.newMa
 @UtilityClass
 public class PaperPermissionHelper {
 
-    private final Pattern PACKAGE_VERSION_PATTERN = Pattern
-            .compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
+    private final Pattern PACKAGE_VERSION_PATTERN = Pattern.compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
     private final String SERVER_PACKAGE_VERSION;
     private final FieldAccessor PERMISSIBLE_ACCESSOR;
     private final MethodAccessor<?> UPDATE_COMMAND_TREE_ACCESSOR;
@@ -61,10 +60,7 @@ public class PaperPermissionHelper {
         }
 
         // Finds the permissible accessor field in the CraftHumanEntity class.
-        PERMISSIBLE_ACCESSOR = Reflexion.findAny(
-                        "org.bukkit.craftbukkit" + SERVER_PACKAGE_VERSION + "entity.CraftHumanEntity",
-                        "net.glowstone.entity.GlowHumanEntity"
-                )
+        PERMISSIBLE_ACCESSOR = Reflexion.findAny("org.bukkit.craftbukkit.entity.CraftHumanEntity", "net.glowstone.entity.GlowHumanEntity")
                 .flatMap(reflexion -> reflexion.findField(newMatcher().denyModifier(Modifier.STATIC).derivedType(Field::getType, Permissible.class)))
                 .orElseThrow(() -> new NoSuchElementException("Unable to resolve permissible field of player"));
 

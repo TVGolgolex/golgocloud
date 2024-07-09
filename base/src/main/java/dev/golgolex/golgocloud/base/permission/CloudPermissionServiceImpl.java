@@ -2,7 +2,6 @@ package dev.golgolex.golgocloud.base.permission;
 
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.base.configuration.PermissionsConfiguration;
-import dev.golgolex.golgocloud.common.group.CloudGroup;
 import dev.golgolex.golgocloud.common.permission.CloudPermissibleEntity;
 import dev.golgolex.golgocloud.common.permission.CloudPermissibleGroup;
 import dev.golgolex.golgocloud.common.permission.CloudPermissionPool;
@@ -31,6 +30,16 @@ public final class CloudPermissionServiceImpl implements CloudPermissionService 
             CloudBase.instance().logger().info("Loaded following permission pools: &3" + this.permissionPools.stream()
                     .map(CloudPermissionPool::id)
                     .collect(Collectors.joining("&2, &3")));
+
+            for (var permissionPool : this.permissionPools) {
+                for (CloudPermissibleGroup permissibleGroup : permissionPool.permissibleGroups()) {
+                    System.out.println("Group: " + permissibleGroup.name());
+                    for (var activePermission : permissibleGroup.activePermissions()) {
+                        System.out.println("Group: " + permissibleGroup.name() + " - " + activePermission.permissionKey());
+                    }
+                }
+            }
+
         }, () -> CloudBase.instance().logger().error("No permissions configuration found.", null));
     }
 

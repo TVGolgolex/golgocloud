@@ -56,10 +56,12 @@ public class CloudPermissibleEntity extends CloudPermissible {
             if (this.groupEntries.stream().noneMatch(groupEntry -> groupEntry.name().equalsIgnoreCase(permissibleGroup.name()))) {
                 continue;
             }
-            if (permissibleGroup.permissionCheckResult("*").asBoolean() || permissibleGroup.permissionCheckResult(permission).asBoolean()) {
+            if (permissibleGroup.hasPermission(permissionPool, permission).asBoolean()) {
+                System.out.println("check: " + permissibleGroup.name());
                 return PermissionCheckResult.ALLOWED;
             }
         }
+        System.out.println("deny all");
         return PermissionCheckResult.DENY;
     }
 
