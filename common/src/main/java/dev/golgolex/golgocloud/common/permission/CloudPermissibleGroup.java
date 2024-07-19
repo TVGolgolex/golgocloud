@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = false)
-public class CloudPermissibleGroup extends CloudPermissible {
+public  class CloudPermissibleGroup extends CloudPermissible {
 
     private String name;
     private List<String> implementedGroups;
@@ -51,19 +51,19 @@ public class CloudPermissibleGroup extends CloudPermissible {
     }
 
     public PermissionCheckResult hasPermission(@NotNull CloudPermissionPool permissionPool, @NotNull String permission) {
-        if (this.permissionCheckResult("*").asBoolean() || this.permissionCheckResult(permission).asBoolean()) {
+        if (this.permissionCheckResult("*").equals(PermissionCheckResult.ALLOWED)) {
             return PermissionCheckResult.ALLOWED;
         }
+
         for (var permissibleGroup : permissionPool.permissibleGroups()) {
-            if (this.implementedGroups.stream().noneMatch(s -> s.equalsIgnoreCase(permissibleGroup.name()))) {
-                continue;
-            }
-            if (permissibleGroup.hasPermission(permissionPool, permission).asBoolean()) {
-                System.out.println("check allow: " + permissibleGroup.name());
-                return PermissionCheckResult.ALLOWED;
+            for (var implementedGroup : this.implementedGroups) {
+                if (implementedGroup.equalsIgnoreCase(permissibleGroup.name())) {
+                    if (permissibleGroup.hasPermission(permissionPool, permission).equals(PermissionCheckResult.ALLOWED)) {
+                        return PermissionCheckResult.ALLOWED;
+                    }
+                }
             }
         }
-        System.out.println("check deny group");
-        return PermissionCheckResult.DENY;
+        return this.permissionCheckResult(permission);
     }
 }

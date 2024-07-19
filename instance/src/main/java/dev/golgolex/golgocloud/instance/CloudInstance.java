@@ -14,13 +14,14 @@ import dev.golgolex.golgocloud.instance.network.CloudNetworkProviderImpl;
 import dev.golgolex.golgocloud.instance.service.CloudServiceProcessQueue;
 import dev.golgolex.golgocloud.instance.service.CloudServiceProviderImpl;
 import dev.golgolex.golgocloud.instance.service.CloudServiceWorkerThread;
-import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.instance.service.version.CloudServiceVersionProvider;
+import dev.golgolex.golgocloud.instance.template.CloudTemplateProviderImpl;
 import dev.golgolex.quala.common.Quala;
 import dev.golgolex.quala.logger.Logger;
 import dev.golgolex.quala.logger.LoggerFactory;
 import dev.golgolex.quala.logger.handler.FileLoggerHandler;
 import dev.golgolex.quala.logger.handler.LoggerOutPutStream;
+import dev.golgolex.quala.module.ModuleInjector;
 import dev.golgolex.quala.netty5.basic.ChannelIdentity;
 import dev.golgolex.quala.netty5.basic.InactiveAction;
 import dev.golgolex.quala.netty5.basic.NetworkCodec;
@@ -38,7 +39,7 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
-public class CloudInstance {
+public final class CloudInstance {
 
     @Getter
     private static CloudInstance instance;
@@ -56,6 +57,7 @@ public class CloudInstance {
     private final CloudTemplateProviderImpl templateProvider;
     private final Scheduler scheduler = new Scheduler(40);
     private final boolean osLinux;
+    private final ModuleInjector moduleInjector;
     private CloudServiceProcessQueue serverProcessQueue;
     private UUID instanceId;
     private NettyClient nettyClient;
@@ -79,6 +81,11 @@ public class CloudInstance {
             boolean ignore = logDirectory.mkdirs();
         }*/
 
+        var moduleDirectory = new File(this.instanceDirectory, "module");
+        if (!moduleDirectory.exists()) {
+            boolean ignore = moduleDirectory.mkdirs();
+        }
+
         this.cloudTerminal = new QualaTerminal("&3instance&2: &1");
         this.loggerFactory.registerLoggers(new FileLoggerHandler(), this.cloudTerminal);
         System.setErr(new PrintStream(new LoggerOutPutStream(this.logger, true), true, StandardCharsets.UTF_8));
@@ -92,6 +99,10 @@ public class CloudInstance {
         this.serviceVersionProvider = new CloudServiceVersionProvider(this.instanceDirectory);
         this.serviceProvider = new CloudServiceProviderImpl(this.instanceDirectory);
         this.templateProvider = new CloudTemplateProviderImpl(this.instanceDirectory);
+        this.moduleInjector = new ModuleInjector(moduleDirectory,
+                module -> this.logger.info("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1initialized"),
+                module -> this.logger.success("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1activated"),
+                module -> this.logger.warn("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1deactivated"));
 
         this.configurationService.addConfiguration(
                 new InstanceConfiguration(this.configurationService.configurationDirectory()),
@@ -120,11 +131,11 @@ public class CloudInstance {
         });
         this.networkProvider.initPacketReceivers(this.nettyClient.packetReceiverManager());
 
-        this.cloudTerminal.spacer();
-        this.cloudTerminal.spacer("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudInstance.class.getPackage().getImplementationVersion());
-        this.cloudTerminal.spacer("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
-        this.cloudTerminal.spacer("    &1Instance ID&2: &3" + this.instanceId.toString());
-        this.cloudTerminal.spacer();
+        this.cloudTerminal.message();
+        this.cloudTerminal.message("    &3GolgoCloud &2| &1modern network environment &2| &3" + CloudInstance.class.getPackage().getImplementationVersion());
+        this.cloudTerminal.message("    &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.message("    &1Instance ID&2: &3" + this.instanceId.toString());
+        this.cloudTerminal.message();
 
         this.cloudTerminal.terminalCommandService().registerCommand(new StopCommand());
 
@@ -180,6 +191,11 @@ public class CloudInstance {
 
         new CloudServiceWorkerThread().init(scheduler);
 
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            this.moduleInjector.initialize(module);
+            this.moduleInjector.activate(module);
+        }
+
         Quala.sleepUninterruptedly(1000);
 
         this.cloudInstance.ready(true);
@@ -190,6 +206,11 @@ public class CloudInstance {
         for (var configuration : this.configurationService.configurations()) {
             configuration.reload();
         }
+
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            module.refresh();
+        }
+
         this.groupProvider.reloadGroups();
         this.templateProvider.reloadTemplates();
     }
@@ -201,8 +222,13 @@ public class CloudInstance {
         for (var serviceFactory : this.serviceProvider.serviceFactories()) {
             serviceFactory.terminate();
         }
+
         this.loggerFactory.close();
         this.scheduler.cancelAllTasks();
+
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            this.moduleInjector.deactivate(module);
+        }
 
         FileHelper.deleteDirectory(new File(this.instanceDirectory, "running/dynamic"));
 

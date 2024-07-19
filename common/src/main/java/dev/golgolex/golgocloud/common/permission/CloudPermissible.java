@@ -40,7 +40,12 @@ public abstract class CloudPermissible implements BufferClass {
     }
 
     public CloudPermission permission(@NotNull String permissionKey) {
-        return this.activePermissions.stream().filter(cloudPermission -> cloudPermission.permissionKey().equalsIgnoreCase(permissionKey)).findFirst().orElse(null);
+        for (var activePermission : this.activePermissions) {
+            if (activePermission.permissionKey().equalsIgnoreCase(permissionKey)) {
+                return activePermission;
+            }
+        }
+        return null;
     }
 
     public void addPermission(@NotNull CloudPermission permission) {

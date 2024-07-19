@@ -49,20 +49,24 @@ public class CloudPermissibleEntity extends CloudPermissible {
     }
 
     public PermissionCheckResult hasPermission(@NotNull CloudPermissionPool permissionPool, @NotNull String permission) {
-        if (this.permissionCheckResult("*").asBoolean() || this.permissionCheckResult(permission).asBoolean()) {
+        if (this.permissionCheckResult("*").equals(PermissionCheckResult.ALLOWED)) {
+            System.out.println("bypass with *");
             return PermissionCheckResult.ALLOWED;
         }
+
         for (var permissibleGroup : permissionPool.permissibleGroups()) {
-            if (this.groupEntries.stream().noneMatch(groupEntry -> groupEntry.name().equalsIgnoreCase(permissibleGroup.name()))) {
-                continue;
-            }
-            if (permissibleGroup.hasPermission(permissionPool, permission).asBoolean()) {
-                System.out.println("check: " + permissibleGroup.name());
-                return PermissionCheckResult.ALLOWED;
+            for (var groupEntry : this.groupEntries) {
+                if (groupEntry.name().equalsIgnoreCase(permissibleGroup.name())) {
+                    if (permissibleGroup.hasPermission(permissionPool, permission).asBoolean()) {
+                        System.out.println("bypass with group");
+                        return PermissionCheckResult.ALLOWED;
+                    }
+                }
             }
         }
-        System.out.println("deny all");
-        return PermissionCheckResult.DENY;
+
+        System.out.println("check result");
+        return this.permissionCheckResult(permission);
     }
 
     @Getter

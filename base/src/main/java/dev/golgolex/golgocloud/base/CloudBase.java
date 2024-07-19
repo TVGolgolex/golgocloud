@@ -23,6 +23,8 @@ import dev.golgolex.quala.logger.Logger;
 import dev.golgolex.quala.logger.LoggerFactory;
 import dev.golgolex.quala.logger.handler.FileLoggerHandler;
 import dev.golgolex.quala.logger.handler.LoggerOutPutStream;
+import dev.golgolex.quala.module.Module;
+import dev.golgolex.quala.module.ModuleInjector;
 import dev.golgolex.quala.netty5.basic.InactiveAction;
 import dev.golgolex.quala.netty5.basic.NetworkCodec;
 import dev.golgolex.quala.netty5.basic.NetworkUtils;
@@ -60,6 +62,7 @@ public final class CloudBase {
     private final ServerBrandingServiceImpl serverBrandingService;
     private final CloudPermissionServiceImpl cloudPermissionService;
     private final Scheduler scheduler = new Scheduler(50);
+    private final ModuleInjector moduleInjector;
 
     public CloudBase() throws IOException, NoSuchFieldException, IllegalAccessException {
         instance = this;
@@ -75,6 +78,11 @@ public final class CloudBase {
         var logDirectory = new File(this.baseDirectory, "logs");
         if (!logDirectory.exists()) {
             boolean ignore = logDirectory.mkdirs();
+        }
+
+        var moduleDirectory = new File(this.baseDirectory, "module");
+        if (!moduleDirectory.exists()) {
+            boolean ignore = moduleDirectory.mkdirs();
         }
 
         this.cloudTerminal = new QualaTerminal("&3base&2: &1");
@@ -100,6 +108,10 @@ public final class CloudBase {
         this.playerProvider = new CloudPlayerProviderImpl(this.baseDirectory);
         this.serverBrandingService = new ServerBrandingServiceImpl();
         this.cloudPermissionService = new CloudPermissionServiceImpl();
+        this.moduleInjector = new ModuleInjector(moduleDirectory,
+                module -> this.logger.info("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1initialized"),
+                module -> this.logger.success("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1activated"),
+                module -> this.logger.warn("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1deactivated"));
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
@@ -113,10 +125,10 @@ public final class CloudBase {
         );
         this.networkProvider.initPacketReceivers(this.nettyServer.serverChannelTransmitter().packetReceiverManager());
 
-        this.cloudTerminal.spacer();
-        this.cloudTerminal.spacer("  &3Cloud &1for ClayMC.net &1version&2: &3" + CloudBase.class.getPackage().getImplementationVersion());
-        this.cloudTerminal.spacer("  &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
-        this.cloudTerminal.spacer();
+        this.cloudTerminal.message();
+        this.cloudTerminal.message("  &3Cloud &1for ClayMC.net &1version&2: &3" + CloudBase.class.getPackage().getImplementationVersion());
+        this.cloudTerminal.message("  &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
+        this.cloudTerminal.message();
 
         this.cloudTerminal.terminalCommandService().registerCommand(new ReloadCommand());
         this.cloudTerminal.terminalCommandService().registerCommand(new StopCommand());
@@ -150,12 +162,21 @@ public final class CloudBase {
         schedulerThread.setDaemon(true);
         schedulerThread.start();
 
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            this.moduleInjector.initialize(module);
+            this.moduleInjector.activate(module);
+        }
+
         new CloudServiceWorkerThread(this).init();
     }
 
     public void reload() {
         for (var configuration : this.configurationService.configurations()) {
             configuration.reload();
+        }
+
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            module.refresh();
         }
 
         this.groupProvider.reloadGroups();
@@ -168,6 +189,11 @@ public final class CloudBase {
     public void shutdown(boolean shutdownCycle) {
         this.loggerFactory.close();
         this.scheduler.cancelAllTasks();
+
+        for (var module : this.moduleInjector.modulesInFolder()) {
+            this.moduleInjector.deactivate(module);
+        }
+
         try {
             this.nettyServer.close();
         } catch (Exception e) {

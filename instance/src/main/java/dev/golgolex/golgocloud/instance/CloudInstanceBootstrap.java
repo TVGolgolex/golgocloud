@@ -2,7 +2,7 @@ package dev.golgolex.golgocloud.instance;
 
 import java.io.IOException;
 
-public class CloudInstanceBootstrap {
+public final class CloudInstanceBootstrap {
     public static void main(String[] args) {
         if (Runtime.version().feature() < 21) {
             System.out.println("Cloud needs Java 21");
