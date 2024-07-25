@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import dev.golgolex.golgocloud.base.CloudBase;
 import dev.golgolex.golgocloud.common.user.CloudPlayer;
 import dev.golgolex.golgocloud.common.user.CloudPlayerProvider;
+import dev.golgolex.golgocloud.common.user.packets.CloudPlayerCallEventCreatePacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerLoginPacket;
 import dev.golgolex.golgocloud.common.user.packets.CloudPlayerUpdatePacket;
 import dev.golgolex.quala.common.json.JsonDocument;
@@ -77,6 +78,7 @@ public final class CloudPlayerProviderImpl implements CloudPlayerProvider {
     @Override
     public void createCloudPlayer(@NotNull CloudPlayer cloudPlayer) {
         this.cloudPlayers.add(cloudPlayer);
+        CloudBase.instance().nettyServer().serverChannelTransmitter().sendPacketToAll(new CloudPlayerCallEventCreatePacket(cloudPlayer), null);
         new JsonDocument().write("cloudPlayer", cloudPlayer).saveAsConfig(new File(this.databaseDirectory, cloudPlayer.uniqueId().toString() + ".json").toPath());
     }
 
