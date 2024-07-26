@@ -52,7 +52,6 @@ public class CloudAPI {
     public static final Pattern IP_PATTERN = Pattern.compile(
             "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
     );
-
     private final Logger logger;
     private final ConfigurationService configurationService;
     private final CloudNetworkProvider cloudNetworkProvider;
@@ -72,7 +71,11 @@ public class CloudAPI {
      * The CloudAPI class is the entry point for interacting with the cloud system.
      * It provides access to various components and functionalities of the cloud system.
      */
-    public CloudAPI(@NotNull ChannelIdentity identity, @NotNull ConfigurationService configurationService, @NotNull Logger logger) {
+    public CloudAPI(
+            @NotNull ChannelIdentity identity,
+            @NotNull ConfigurationService configurationService,
+            @NotNull Logger logger
+    ) {
         instance = this;
 
         this.logger = logger;
@@ -112,7 +115,9 @@ public class CloudAPI {
         this.serverBrandingService.reloadStyles();
         this.cloudPermissionService.reload();
 
-        CloudConfigurationReplyPacket replyPacket = this.nettyClient.thisNetworkChannel().sendQuery(new CloudConfigurationRequestPacket("database"));
+        CloudConfigurationReplyPacket replyPacket = this.nettyClient
+                .thisNetworkChannel()
+                .sendQuery(new CloudConfigurationRequestPacket("database"));
         var mongoConfiguration = replyPacket.configuration().readJsonDocument("mongodb");
         var collectionsConfiguration = mongoConfiguration.readJsonDocument("collections");
 

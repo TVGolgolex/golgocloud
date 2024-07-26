@@ -21,17 +21,28 @@ public final class ServerBrandingServiceImpl implements ServerBrandingService {
 
     @Override
     public ServerBrandStyle brandStyle(@NotNull String name) {
-        return this.loadedBrands.stream().filter(serverBrandStyle -> serverBrandStyle.name().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return this.loadedBrands.stream()
+                .filter(serverBrandStyle -> serverBrandStyle.name()
+                        .equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public ServerBrandStyle brandStyle(@NotNull UUID uniqueId) {
-        return this.loadedBrands.stream().filter(serverBrandStyle -> serverBrandStyle.uuid().equals(uniqueId)).findFirst().orElse(null);
+        return this.loadedBrands.stream()
+                .filter(serverBrandStyle -> serverBrandStyle.uuid()
+                        .equals(uniqueId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public ServerBrandStyle anyDefault() {
-        return this.loadedBrands.stream().filter(ServerBrandStyle::fallback).findAny().orElse(null);
+        return this.loadedBrands.stream()
+                .filter(ServerBrandStyle::fallback)
+                .findAny()
+                .orElse(null);
     }
 
     @Override

@@ -16,14 +16,12 @@ import dev.golgolex.golgocloud.base.template.CloudTemplateProviderImpl;
 import dev.golgolex.golgocloud.base.user.CloudPlayerProviderImpl;
 import dev.golgolex.golgocloud.common.CloudShutdownExecutor;
 import dev.golgolex.golgocloud.common.configuration.ConfigurationService;
-import dev.golgolex.golgocloud.base.configuration.DatabaseConfiguration;
 import dev.golgolex.golgocloud.common.threading.Scheduler;
 import dev.golgolex.quala.common.utils.color.ConsoleColor;
 import dev.golgolex.quala.logger.Logger;
 import dev.golgolex.quala.logger.LoggerFactory;
 import dev.golgolex.quala.logger.handler.FileLoggerHandler;
 import dev.golgolex.quala.logger.handler.LoggerOutPutStream;
-import dev.golgolex.quala.module.Module;
 import dev.golgolex.quala.module.ModuleInjector;
 import dev.golgolex.quala.netty5.basic.InactiveAction;
 import dev.golgolex.quala.netty5.basic.NetworkCodec;
@@ -37,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
 
 @Getter
 @Accessors(fluent = true)
@@ -111,7 +108,8 @@ public final class CloudBase {
         this.moduleInjector = new ModuleInjector(moduleDirectory,
                 module -> this.logger.info("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1initialized"),
                 module -> this.logger.success("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1activated"),
-                module -> this.logger.warn("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1deactivated"));
+                module -> this.logger.warn("&1Module &2'&3" + module.moduleProperties().name() + "&2' &1by &2'&3" + module.moduleProperties().author() + "&2' &1deactivated")
+        );
 
         this.configurationService.addConfiguration(
                 new BaseConfiguration(this.configurationService.configurationDirectory()),
@@ -130,27 +128,33 @@ public final class CloudBase {
         this.cloudTerminal.message("  &1Java&2: &3" + System.getProperty("java.version") + " &2- &1User&2: &3" + System.getProperty("user.name") + " &2- &1OS &2: &3" + System.getProperty("os.name"));
         this.cloudTerminal.message();
 
-        this.cloudTerminal.terminalCommandService().registerCommand(new ReloadCommand());
-        this.cloudTerminal.terminalCommandService().registerCommand(new StopCommand());
-        this.cloudTerminal.terminalCommandService().registerCommand(new ClearCommand());
-        this.cloudTerminal.terminalCommandService().registerCommand(new CloudServiceCommand());
+        this.cloudTerminal.terminalCommandService()
+                .registerCommand(new ReloadCommand());
+        this.cloudTerminal.terminalCommandService()
+                .registerCommand(new StopCommand());
+        this.cloudTerminal.terminalCommandService()
+                .registerCommand(new ClearCommand());
+        this.cloudTerminal.terminalCommandService()
+                .registerCommand(new CloudServiceCommand());
 
         this.bootstrap();
         this.cloudTerminal.start();
     }
 
     public void bootstrap() {
-        this.configurationService.configurationOptional("network").ifPresentOrElse(configurationClass -> {
-            var networkConfiguration = (NetworkConfiguration) configurationClass;
-            this.nettyServer.connect(networkConfiguration.nettyServerHostname(), networkConfiguration.nettyServerPort());
-        }, () -> this.logger.warn("No network configuration found."));
+        this.configurationService.configurationOptional("network")
+                .ifPresentOrElse(configurationClass -> {
+                    var networkConfiguration = (NetworkConfiguration) configurationClass;
+                    this.nettyServer.connect(networkConfiguration.nettyServerHostname(), networkConfiguration.nettyServerPort());
+                }, () -> this.logger.warn("No network configuration found."));
 
-        this.configurationService.configurationOptional("base").ifPresentOrElse(configurationClass -> {
-            var baseConfiguration = (BaseConfiguration) configurationClass;
-            this.logger.debugMode(baseConfiguration.consoleDebug());
-            NetworkUtils.DEV_MODE = baseConfiguration.nettyDebug();
-            this.logger.info("Handling is based on &2'&3" + baseConfiguration.cloudSyncFunction().name() + ConsoleColor.DARK_GRAY.ansiCode() + "&2'");
-        }, () -> this.logger.warn("No base configuration found."));
+        this.configurationService.configurationOptional("base")
+                .ifPresentOrElse(configurationClass -> {
+                    var baseConfiguration = (BaseConfiguration) configurationClass;
+                    this.logger.debugMode(baseConfiguration.consoleDebug());
+                    NetworkUtils.DEV_MODE = baseConfiguration.nettyDebug();
+                    this.logger.info("Handling is based on &2'&3" + baseConfiguration.cloudSyncFunction().name() + ConsoleColor.DARK_GRAY.ansiCode() + "&2'");
+                }, () -> this.logger.warn("No base configuration found."));
 
         this.groupProvider.reloadGroups();
         this.templateProvider.reloadTemplates();
